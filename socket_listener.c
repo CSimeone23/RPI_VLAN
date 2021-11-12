@@ -43,14 +43,14 @@ void incoming_traffic_listener_setup(int *server_socket){
 void create_udp_socket(int *udp_socket, char *ipv4_address, int port){
 	*udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
 	if(*udp_socket == -1){
-		handle_error("socket", errno);
+		handle_error("socket");
 	}
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = inet_addr(ipv4_address);
 	if(bind(*udp_socket, (struct sockaddr*) &addr, sizeof(addr)) == -1){
-		handle_error("bind", errno);
+		handle_error("bind");
 	}
 	printf("UDP Socket %s:%d was created successfully!\n", ipv4_address, port);
 }
@@ -59,7 +59,7 @@ int send_datagram(int socket, char *buf, int recv_len, struct sockaddr* socket_a
 	int send_to = sendto(socket, buf, recv_len, 0, socket_addr, slen);
 	if(send_to == -1){
 		//TODO: DELETE HANDLE_ERROR CALL
-		handle_error("sendto", errno);
+		handle_error("sendto");
 		printf("ERROR SENDING DATA\n");
 		return -1;
 	}

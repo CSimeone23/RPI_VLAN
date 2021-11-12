@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void handle_error(char *errType, int errno){
+void handle_error(char *errType){
 	if(strcmp(errType, "socket") == 0){
 		printf("Socket Error:\n");
 		switch(errno){
