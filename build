@@ -1,0 +1,2 @@
+#!/bin/sh
+gcc socket_listener.c -o run_server.exe -l pthread
