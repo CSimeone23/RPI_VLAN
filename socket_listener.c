@@ -8,6 +8,8 @@
 #include <pthread.h>
 #include <unistd.h>
 
+#include "error_handlers.h"
+
 #define BROADCAST_ADDRESS "255.255.255.255"
 #define NUM_THREADS 2
 
@@ -18,121 +20,6 @@ struct thread_data {
 	int *socket;
 	int thread_id;
 };
-
-void handle_error(char *errType){
-	if(strcmp(errType, "socket") == 0){
-		printf("Socket Error:\n");
-		switch(errno){
-			case EACCES:
-				printf("Permission to create a sock of the Specified type and/or protocol is denied");
-				exit(EXIT_FAILURE);
-			default:
-				printf("Unhandled Error when creating Socket");
-				exit(EXIT_FAILURE);
-		}
-	} else if(strcmp(errType, "bind") == 0){
-		printf("Binding Error:\n");
-		switch(errno){
-			case EACCES:
-				printf("The address is protected, and the user is not the superuser\n");
-				exit(EXIT_FAILURE);
-			case EADDRINUSE:
-				printf("The given address is already in use\n");
-				exit(EXIT_FAILURE);
-			case EBADF:
-				printf("Sockfd is not a valid file descriptor\n");
-				exit(EXIT_FAILURE);
-			case EINVAL:
-				printf("The socket is already bound to an address\n");
-				exit(EXIT_FAILURE);
-			case ENOTSOCK:
-				printf("The file descriptor does sockfd does not refer to a socket\n");
-				exit(EXIT_FAILURE);
-			case EADDRNOTAVAIL:
-				printf("A nonexistant interface was requested or the requested address was not local\n");
-				exit(EXIT_FAILURE);
-			case EFAULT:
-				printf("addr points outside the user's accessible address space\n");
-				exit(EXIT_FAILURE);
-			case ELOOP:
-				printf("Too many symbolic links were encountered in resolving addr\n");
-				exit(EXIT_FAILURE);
-			case ENAMETOOLONG:
-				printf("addr is too long\n");
-				exit(EXIT_FAILURE);
-			case ENOENT:
-				printf("A component in the directory prefix of the socket pathname does not exist\n");
-				exit(EXIT_FAILURE);
-			case ENOMEM:
-				printf("Insufficient kernel memory was available\n");
-				exit(EXIT_FAILURE);
-			case ENOTDIR:
-				printf("A component of the path prefix is not a directory\n");
-				exit(EXIT_FAILURE);
-			case EROFS:
-				printf("The socket inode would reside on a read-only filesystem\n");
-				exit(EXIT_FAILURE);
-			default:
-				printf("Unhandled Error when Binding\n");
-				exit(EXIT_FAILURE);
-		}
-	} else if(strcmp(errType, "sendto") == 0){
-		printf("Sendto Error:\t");
-		switch(errno){
-			case EACCES:
-				printf("EACCES\n");
-				exit(EXIT_FAILURE);
-			case EAGAIN:
-				printf("EAGAIN || EWOULDBLOCK\n");
-				exit(EXIT_FAILURE);
-			case EBADF:
-				printf("EBADF\n");
-				exit(EXIT_FAILURE);
-			case ECONNRESET:
-				printf("ECONNRESET\n");
-				exit(EXIT_FAILURE);
-			case EDESTADDRREQ:
-				printf("EDESTADDREQ\n");
-				exit(EXIT_FAILURE);
-			case EFAULT:
-				printf("EFAULT\n");
-				exit(EXIT_FAILURE);
-			case EINTR:
-				printf("EINTR\n");
-				exit(EXIT_FAILURE);
-			case EINVAL:
-				printf("EINVAL\n");
-				exit(EXIT_FAILURE);
-			case EISCONN:
-				printf("EISCONN\n");
-				exit(EXIT_FAILURE);
-			case EMSGSIZE:
-				printf("EMSGSIZE\n");
-				exit(EXIT_FAILURE);
-			case ENOBUFS:
-				printf("ENOBUFS\n");
-				exit(EXIT_FAILURE);
-			case ENOMEM:
-				printf("ENOMEM\n");
-				exit(EXIT_FAILURE);
-			case ENOTCONN:
-				printf("ENOTCONN\n");
-				exit(EXIT_FAILURE);
-			case ENOTSOCK:
-				printf("ENOTSOCK\n");
-				exit(EXIT_FAILURE);
-			case EOPNOTSUPP:
-				printf("EOPNOTSUPP\n");
-				exit(EXIT_FAILURE);
-			case EPIPE:
-				printf("EPIPE\n");
-				exit(EXIT_FAILURE);
-			default:
-				printf("No idea what the error code is... :(\n");
-				exit(EXIT_FAILURE);
-		}
-	}
-}
 
 void incoming_traffic_listener_setup(int *server_socket){
 	char buf[512];
@@ -156,14 +43,14 @@ void incoming_traffic_listener_setup(int *server_socket){
 void create_udp_socket(int *udp_socket, char *ipv4_address, int port){
 	*udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
 	if(*udp_socket == -1){
-		handle_error("socket");
+		handle_error("socket", errno);
 	}
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = inet_addr(ipv4_address);
 	if(bind(*udp_socket, (struct sockaddr*) &addr, sizeof(addr)) == -1){
-		handle_error("bind");
+		handle_error("bind", errno);
 	}
 	printf("UDP Socket %s:%d was created successfully!\n", ipv4_address, port);
 }
@@ -172,7 +59,7 @@ int send_datagram(int socket, char *buf, int recv_len, struct sockaddr* socket_a
 	int send_to = sendto(socket, buf, recv_len, 0, socket_addr, slen);
 	if(send_to == -1){
 		//TODO: DELETE HANDLE_ERROR CALL
-		handle_error("sendto");
+		handle_error("sendto", errno);
 		printf("ERROR SENDING DATA\n");
 		return -1;
 	}
