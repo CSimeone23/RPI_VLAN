@@ -12,7 +12,7 @@
 #include "socket_handlers.h"
 
 #define BROADCAST_ADDRESS "255.255.255.255"
-#define NUM_THREADS 8
+#define NUM_THREADS 7
 
 int THREAD_ID = 1;
 struct sockaddr_in ethernet_xbox_socket;
@@ -187,7 +187,7 @@ int main(int argc, char *argv[]){
 	t_data[0].port_num = 8080;
 	create_listener_thread_wifi(&wifi_8080_socket, &t_data[0]);
 	THREAD_ID+=1;
-	for(int i=0; i<NUM_THREADS; i++){
+	for(int i=0; i<NUM_THREADS-1; i++){
 		create_udp_socket(&udp_sockets[i], BROADCAST_ADDRESS, port_nums[i]);
 		t_data[i+1].socket = &udp_sockets[i];
 		t_data[i+1].thread_id = THREAD_ID;
