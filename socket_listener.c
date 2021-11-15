@@ -193,7 +193,7 @@ int main(int argc, char *argv[]){
 		if(port_nums[i] == 3074)
 			create_udp_socket(&udp_sockets[i], BROADCAST_ADDRESS, port_nums[i]);
 		else
-			create_udp_socket(&udp_sockets[i], "192.168.2.52", port_nums[i]);
+			create_udp_socket(&udp_sockets[i], "192.168.1.250", port_nums[i]);
 		t_data[i+1].socket = &udp_sockets[i];
 		t_data[i+1].thread_id = THREAD_ID;
 		t_data[i+1].port_num = port_nums[i];
