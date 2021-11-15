@@ -182,18 +182,18 @@ int main(int argc, char *argv[]){
 	int port_nums[6] = [88, 3074, 53, 500, 3544, 4500];
 	int udp_sockets[NUM_THREADS-1];
 	struct thread_data t_data[NUM_THREADS];
-	t_data[0].socket = wifi_8080_socket;
+	t_data[0].socket = &wifi_8080_socket;
 	t_data[0].thread_id = THREAD_ID;
 	t_data[0].port_num = 8080;
 	create_listener_thread(&wifi_8080_socket, &t_data[0]);
-	THREAD_ID++;
+	THREAD_ID+=1;
 	for(int i=0; i<NUM_THREADS; i++){
 		create_udp_socket(udp_sockets[i], BROADCAST_ADDRESS, port_nums[i]);
-		t_data[i+1].socket = udp_sockets[i];
+		t_data[i+1].socket = &udp_sockets[i];
 		t_data[i+1].thread_id = THREAD_ID;
 		t_data[i+1].port_num = port_nums[i];
 		create_listener_thread(&udp_sockets[i], &t_data[i+1]);
-		THREAD_ID++;
+		THREAD_ID+=1;
 	}
 	for(int i=0; i<NUM_THREADS; i++){
 		if( pthread_join(*(threads+(i*sizeof(pthread_t))), NULL) != 0 ){
