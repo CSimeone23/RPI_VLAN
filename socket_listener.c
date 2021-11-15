@@ -12,14 +12,17 @@
 #include "socket_handlers.h"
 
 #define BROADCAST_ADDRESS "255.255.255.255"
-#define NUM_THREADS 2
+#define NUM_THREADS 8
+#define THREAD_ID 1
 
 struct sockaddr_in ethernet_xbox_socket;
 struct sockaddr_in hubserver_25565_socket;
+pthread_t threads[NUM_THREADS]
 
 struct thread_data {
 	int *socket;
 	int thread_id;
+	int port_num;
 };
 
 void incoming_traffic_listener_setup(int *server_socket){
@@ -137,10 +140,29 @@ void handle_threads(int *ethernet_socket, int *wifi_8080_socket){
 	printf("Finished joining threads\n");
 }
 
+
+void create_listener_thread_eth(int *curr_socket, struct thread_data *t_data){
+	if(pthread_create(&threads[THREAD_ID-1], NULL, ethernet_listener_thread, t_data) != 0){
+		printf("Error Creating Thread for PORT: %d", t_data->port_num);
+		exit(EXIT_FAILURE);
+	}
+}
+
+void create_listener_thread_wifi(int *curr_socket, struct thread_data *t_data){
+	if(pthread_create(&threads[THREAD_ID-1], NULL, wifi_listener_thread, t_data) != 0){
+		printf("Error Creating Thread for PORT: %d", t_data->port_num)
+		exit(EXIT_FAILURE);
+	}
+}
+
 int main(int argc, char *argv[]){
 	// Ethernet socket listens on port 3074 and hears communication
 	// from Xbox and Wlan0
-	int ethernet_socket;
+	
+	
+	//int ethernet_socket;
+	
+	
 	// Wifi socket listens on 8080 and communicates between the
 	// ethernet socket and the router
 	// Responsible for filtering LAN game packets and sending to hub-server
@@ -148,9 +170,40 @@ int main(int argc, char *argv[]){
 	int wifi_8080_socket; //Handles communication between hub-server and RPI
 	// Xbox IP is 192.168.2.52 (use 'arp -a')
 
-	create_udp_socket(&ethernet_socket, BROADCAST_ADDRESS, 3074); // Xbox IP use arp -a
+	//create_udp_socket(&ethernet_socket, BROADCAST_ADDRESS, 3074); // Xbox IP use arp -a
 	create_udp_socket(&wifi_8080_socket, "192.168.1.205", 8080);
 	incoming_traffic_listener_setup(&wifi_8080_socket);
-	handle_threads(&ethernet_socket, &wifi_8080_socket);
+	
+	
+	//TODO: remove this
+	//handle_threads(&ethernet_socket, &wifi_8080_socket);
+
+	// THIS IS TEMPORARY //
+	int port_nums = [88, 3074, 53, 500, 3544, 4500];
+	int udp_sockets[NUM_THREADS-1];
+	struct thread_data t_data[NUM_THREADS];
+	t_data[0].socket = wifi_8080_socket;
+	t_data[0].thread_id = THREAD_ID;
+	t_data[0].port_num = 8080;
+	create_listener_thread(&wifi_8080_socket, &t_data[0]);
+	THREAD_ID++;
+	for(int i=0; i<NUM_THREADS; i++){
+		create_udp_socket(udp_sockets[i], BROADCAST_ADDRESS, port_nums[i]);
+		t_data[i+1].socket = udp_sockets[i];
+		t_data[i+1].thread_id = THREAD_ID;
+		t_data[i+1].port_num = port_nums[i];
+		create_listener_thread(&udp_sockets[i], &t_data[i+1]);
+		THREAD_ID++;
+	}
+	for(int i=0; i<NUM_THREADS; i++){
+		if( pthread_join(*(threads+(i*sizeof(pthread_t))), NULL) != 0 ){
+			printf("ERROR JOINING SOCKET #%d\n", i);
+			exit(EXIT_FAILURE);
+		}
+	}
+	//////////////////////
+
+
+
 	return 0;
 }
