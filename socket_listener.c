@@ -17,7 +17,7 @@
 
 struct sockaddr_in ethernet_xbox_socket;
 struct sockaddr_in hubserver_25565_socket;
-pthread_t threads[NUM_THREADS]
+pthread_t threads[NUM_THREADS];
 
 struct thread_data {
 	int *socket;
@@ -175,11 +175,11 @@ int main(int argc, char *argv[]){
 	incoming_traffic_listener_setup(&wifi_8080_socket);
 	
 	
-	//TODO: remove this
+	//TODO: uncomment this
 	//handle_threads(&ethernet_socket, &wifi_8080_socket);
 
 	// THIS IS TEMPORARY //
-	int port_nums = [88, 3074, 53, 500, 3544, 4500];
+	int port_nums[6] = [88, 3074, 53, 500, 3544, 4500];
 	int udp_sockets[NUM_THREADS-1];
 	struct thread_data t_data[NUM_THREADS];
 	t_data[0].socket = wifi_8080_socket;
