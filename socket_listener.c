@@ -28,7 +28,7 @@ struct thread_data {
 void incoming_traffic_listener_setup(int *server_socket){
 	char buf[512];
 	int recv_len, slen = sizeof(hubserver_25565_socket);
-	ethernet_xbox_socket.sin_port = AF_INET;
+	ethernet_xbox_socket.sin_family = AF_INET;
 	ethernet_xbox_socket.sin_port = htons(0);
 	hubserver_25565_socket.sin_family = AF_INET;
 	hubserver_25565_socket.sin_port = htons(25565);
@@ -101,7 +101,8 @@ void *ethernet_listener_thread(void *arg){
 		}
 		if(ntohs(ethernet_xbox_socket.sin_port) == 0){
 			ethernet_xbox_socket.sin_port = incoming_socket.sin_port;
-			ethernet_xbox_socket.sin_addr.s_addr = incoming_socket.sin_addr.s_addr;
+			//ethernet_xbox_socket.sin_addr.s_addr = incoming_socket.sin_addr.s_addr;
+			ethernet_xbox_socket.sin_addr.s_addr = inet_addr("192.168.2.52");
 		}
 		printf("Ethernet thread received packet from %s:%d\nData: %s\n", inet_ntoa(incoming_socket.sin_addr), ntohs(incoming_socket.sin_port), buf);
 
