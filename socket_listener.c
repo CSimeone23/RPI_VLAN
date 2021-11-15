@@ -188,7 +188,7 @@ int main(int argc, char *argv[]){
 	create_listener_thread_wifi(&wifi_8080_socket, &t_data[0]);
 	THREAD_ID+=1;
 	for(int i=0; i<NUM_THREADS; i++){
-		create_udp_socket(udp_sockets[i], BROADCAST_ADDRESS, port_nums[i]);
+		create_udp_socket(&udp_sockets[i], BROADCAST_ADDRESS, port_nums[i]);
 		t_data[i+1].socket = &udp_sockets[i];
 		t_data[i+1].thread_id = THREAD_ID;
 		t_data[i+1].port_num = port_nums[i];
