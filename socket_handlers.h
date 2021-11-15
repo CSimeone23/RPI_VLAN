@@ -1,7 +1,6 @@
 #include </usr/include/arm-linux-gnueabihf/sys/socket.h>
 #include <arpa/inet.h>
 #include <stdio.h>
-#include "error_handlers.h"
 
 void create_udp_socket(int *udp_socket, char *ipv4_address, int port){
 	*udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
