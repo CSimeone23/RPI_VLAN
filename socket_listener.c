@@ -103,6 +103,8 @@ void *ethernet_listener_thread(void *arg){
 			ethernet_xbox_socket.sin_port = incoming_socket.sin_port;
 			ethernet_xbox_socket.sin_addr.s_addr = incoming_socket.sin_addr.s_addr;
 		}
+		printf("Ethernet thread received packet from %s:%d\nData: %s\n", inet_ntoa(incoming_socket.sin_addr), ntohs(incoming_socket.sin_port), buf);
+
 		// Send Data out to HUBSERVER	[XBOX -> R-PI -> HUBSERVER]
 		send_to = send_datagram(*(t_data->socket), buf, recv_len, (struct sockaddr*) &hubserver_25565_socket, slen);
 		if(send_to == -1){
