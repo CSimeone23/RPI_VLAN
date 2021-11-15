@@ -44,7 +44,7 @@ void incoming_traffic_listener_setup(int *server_socket){
 	printf("Incoming traffic listener setup completed successfully!\n");
 }
 
-int send_datagram(int socket, char *buf, int recv_len, struct sockaddr* socket_addr, int slen){
+int send_datagram(int socket, char *buf, size_t recv_len, struct sockaddr* socket_addr, int slen){
 	int send_to = sendto(socket, buf, recv_len, 0, socket_addr, slen);
 	if(send_to == -1){
 		//TODO: DELETE HANDLE_ERROR CALL
@@ -75,7 +75,7 @@ void *wifi_listener_thread(void *arg){
 		// WIFI -> R-PI -> XBOX
 		// Using the broadcast address for now just so I dont need to worry about the specific IP of the XBOX
 
-		send_to = send_datagram(*(t_data->socket), buf, recv_len, (struct sockaddr*) &ethernet_xbox_socket, slen);
+		send_to = send_datagram((int) *(t_data->socket), buf, recv_len, (struct sockaddr*) &ethernet_xbox_socket, slen);
 		if(send_to == -1){
 			printf("ERROR SENDING DATA TO XBOX\n");
 			continue;
