@@ -13,8 +13,8 @@
 
 #define BROADCAST_ADDRESS "255.255.255.255"
 #define NUM_THREADS 8
-#define THREAD_ID 1
 
+int THREAD_ID = 1;
 struct sockaddr_in ethernet_xbox_socket;
 struct sockaddr_in hubserver_25565_socket;
 pthread_t threads[NUM_THREADS];
