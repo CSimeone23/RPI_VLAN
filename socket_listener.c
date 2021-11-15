@@ -150,7 +150,7 @@ void create_listener_thread_eth(int *curr_socket, struct thread_data *t_data){
 
 void create_listener_thread_wifi(int *curr_socket, struct thread_data *t_data){
 	if(pthread_create(&threads[THREAD_ID-1], NULL, wifi_listener_thread, t_data) != 0){
-		printf("Error Creating Thread for PORT: %d", t_data->port_num)
+		printf("Error Creating Thread for PORT: %d", t_data->port_num);
 		exit(EXIT_FAILURE);
 	}
 }
