@@ -191,10 +191,11 @@ int main(int argc, char *argv[]){
 	create_listener_thread_wifi(&wifi_8080_socket, &t_data[0]);
 	THREAD_ID+=1;
 	for(int i=0; i<NUM_THREADS-1; i++){
-		if(port_nums[i] == 3074)
+		/*if(port_nums[i] == 3074)
 			create_udp_socket(&udp_sockets[i], BROADCAST_ADDRESS, port_nums[i]);
 		else
-			create_udp_socket(&udp_sockets[i], "192.168.1.205", port_nums[i]);
+			create_udp_socket(&udp_sockets[i], "192.168.1.205", port_nums[i]);*/
+		create_udp_socket(&udp_sockets[i], BROADCAST_ADDRESS, port_nums[i]);
 		t_data[i+1].socket = &udp_sockets[i];
 		t_data[i+1].thread_id = THREAD_ID;
 		t_data[i+1].port_num = port_nums[i];
