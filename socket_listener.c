@@ -102,7 +102,7 @@ void *ethernet_listener_thread(void *arg){
 		if(ntohs(ethernet_xbox_socket.sin_port) == 0){
 			ethernet_xbox_socket.sin_port = incoming_socket.sin_port;
 			//ethernet_xbox_socket.sin_addr.s_addr = incoming_socket.sin_addr.s_addr;
-			ethernet_xbox_socket.sin_addr.s_addr = inet_addr("192.168.2.52");
+			ethernet_xbox_socket.sin_addr.s_addr = inet_addr(BROADCAST_ADDRESS);//inet_addr("192.168.2.52");
 		}
 		printf("Ethernet thread received packet from %s:%d\nData: %s\n", inet_ntoa(incoming_socket.sin_addr), ntohs(incoming_socket.sin_port), buf);
 
