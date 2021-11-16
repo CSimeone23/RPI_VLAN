@@ -2,10 +2,17 @@
 #include <arpa/inet.h>
 #include <stdio.h>
 
+
 void create_udp_socket(int *udp_socket, char *ipv4_address, int port){
 	*udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
 	if(*udp_socket == -1){
 		handle_error("socket");
+	}
+	int enable = 1;
+	int sock_options = setsockopt(*udp_socket, SOL_SOCKET, SO_BROADCAST, &enable, sizeof(int));
+	if(sock_options < 0){
+		printf("SOCKET OPTION ERROR\n");
+		exit(EXIT_FAILURE);
 	}
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
