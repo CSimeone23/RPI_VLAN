@@ -29,7 +29,8 @@ void incoming_traffic_listener_setup(int *server_socket){
 	char buf[512];
 	int recv_len, slen = sizeof(hubserver_25565_socket);
 	ethernet_xbox_socket.sin_family = AF_INET;
-	ethernet_xbox_socket.sin_port = htons(0);
+	ethernet_xbox_socket.sin_port = htons(3074);
+	ethernet_xbox_socket.sin_addr.s_addr = inet_addr("192.168.2.255");
 	hubserver_25565_socket.sin_family = AF_INET;
 	hubserver_25565_socket.sin_port = htons(25565);
 	hubserver_25565_socket.sin_addr.s_addr = inet_addr("192.168.1.190"); //100.1.75.26 for Farm House // 100.8.130.221 is for external
@@ -98,11 +99,6 @@ void *ethernet_listener_thread(void *arg){
 		if( recv_len == -1){
 			printf("ERROR LISTENING ON ETHERNET XBOX THREAD\n");
 			continue;
-		}
-		if(ntohs(ethernet_xbox_socket.sin_port) == 0){
-			ethernet_xbox_socket.sin_port = incoming_socket.sin_port;
-			//ethernet_xbox_socket.sin_addr.s_addr = incoming_socket.sin_addr.s_addr;
-			ethernet_xbox_socket.sin_addr.s_addr = inet_addr("192.168.2.255");//inet_addr("192.168.2.52");
 		}
 		printf("Ethernet thread received packet from %s:%d\nData: %s\n", inet_ntoa(incoming_socket.sin_addr), ntohs(incoming_socket.sin_port), buf);
 
