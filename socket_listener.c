@@ -30,7 +30,7 @@ void incoming_traffic_listener_setup(int *server_socket){
 	int recv_len, slen = sizeof(hubserver_25565_socket);
 	ethernet_xbox_socket.sin_family = AF_INET;
 	ethernet_xbox_socket.sin_port = htons(3074);
-	ethernet_xbox_socket.sin_addr.s_addr = inet_addr("192.168.2.255");
+	ethernet_xbox_socket.sin_addr.s_addr = inet_addr("192.168.2.52");
 	hubserver_25565_socket.sin_family = AF_INET;
 	hubserver_25565_socket.sin_port = htons(25565);
 	hubserver_25565_socket.sin_addr.s_addr = inet_addr("192.168.1.190"); //100.1.75.26 for Farm House // 100.8.130.221 is for external

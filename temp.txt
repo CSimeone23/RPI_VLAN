@@ -1,0 +1,1 @@
+arp -a | grep XBOX | grep -Eo [0-9\.]{3}
