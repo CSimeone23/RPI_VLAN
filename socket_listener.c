@@ -30,7 +30,7 @@ void incoming_traffic_listener_setup(int *server_socket){
 	int recv_len, slen = sizeof(hubserver_25565_socket);
 	ethernet_xbox_socket.sin_family = AF_INET;
 	ethernet_xbox_socket.sin_port = htons(3074);
-	ethernet_xbox_socket.sin_addr.s_addr = inet_addr("192.168.2.52");
+	ethernet_xbox_socket.sin_addr.s_addr = inet_addr("192.168.2.1");//This is the broadcast address, 192.168.2.52 is the actual ip of the XBOX
 	hubserver_25565_socket.sin_family = AF_INET;
 	hubserver_25565_socket.sin_port = htons(25565);
 	hubserver_25565_socket.sin_addr.s_addr = inet_addr("192.168.1.190"); //100.1.75.26 for Farm House // 100.8.130.221 is for external
@@ -45,8 +45,9 @@ void incoming_traffic_listener_setup(int *server_socket){
 	printf("Incoming traffic listener setup completed successfully!\n");
 }
 
-int send_datagram(int socket, char *buf, size_t recv_len, struct sockaddr* socket_addr, int slen){
-	int send_to = sendto(socket, buf, recv_len, 0, socket_addr, slen);
+int send_datagram(int socket, char *buf, size_t recv_len, struct sockaddr* to, int slen){
+	
+	int send_to = sendto(socket, buf, recv_len, 0, to, slen);
 	if(send_to == -1){
 		//TODO: DELETE HANDLE_ERROR CALL
 		handle_error("sendto");
