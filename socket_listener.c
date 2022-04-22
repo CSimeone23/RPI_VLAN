@@ -147,11 +147,17 @@ int main(int argc, char *argv[]){
 	t_data[2].thread_id = 3;
 
 	// TEMP CHECK
-	int check = fcntl(internet_to_rpi_bridge_socket, F_GETFD);
+	// int check = fcntl(internet_to_rpi_bridge_socket, F_GETFD);
+	int check = fcntl(rpi_ethernet_BROADCAST_socket, F_GETFD);
+	int check2 = fcntl(rpi_ethernet_DIRECT_socket, F_GETFD);
 	if(check == -1){
-		printf("ERROR ALREADY");
+		printf("ERROR FD 1\n");
+	}
+	if(check2 == -1){
+		printf("ERROR FD 2\n");
 		exit(EXIT_FAILURE);
 	}
+
 
 	// Establish Communications with Hubserver
 	setSocketToCommunicateWithHubServer(&internet_to_rpi_bridge_socket);
