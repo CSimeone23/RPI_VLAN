@@ -26,6 +26,18 @@ struct thread_data {
 	int port_num;
 };
 
+
+int send_datagram(int socket, char *buf, size_t recv_len, struct sockaddr* to, int slen){
+	int send_to = sendto(socket, buf, recv_len, 0, to, slen);
+	if(send_to == -1){
+		//TODO: DELETE HANDLE_ERROR CALL
+		handle_error("sendto");
+		printf("ERROR SENDING DATA: %s\n", strerror(errno));
+		return -1;
+	}
+	return 1;
+}
+
 void setSocketToCommunicateWithHubServer(int *server_socket){
 	char buf[512];
 	int recv_len, slen = sizeof(HUBSERVER_ADDRESS);
@@ -49,18 +61,6 @@ void setSocketToCommunicateWithHubServer(int *server_socket){
 		exit(EXIT_FAILURE);
 	}
 	printf("Incoming traffic listener setup completed successfully!\n");
-}
-
-int send_datagram(int socket, char *buf, size_t recv_len, struct sockaddr* to, int slen){
-	
-	int send_to = sendto(socket, buf, recv_len, 0, to, slen);
-	if(send_to == -1){
-		//TODO: DELETE HANDLE_ERROR CALL
-		handle_error("sendto");
-		printf("ERROR SENDING DATA: %s\n", strerror(errno));
-		return -1;
-	}
-	return 1;
 }
 
 void *wifi_listener_thread(void *arg){
