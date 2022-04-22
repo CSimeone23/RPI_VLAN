@@ -12,7 +12,8 @@
 #include "socket_handlers.h"
 
 #define BROADCAST_ADDRESS "255.255.255.255"
-#define NUM_THREADS 7
+#define NUM_THREADS 3
+#define HUBSERVER_IP "192.168.1.205"
 
 int THREAD_ID = 1;
 struct sockaddr_in ethernet_xbox_socket;
@@ -25,7 +26,7 @@ struct thread_data {
 	int port_num;
 };
 
-void incoming_traffic_listener_setup(int *server_socket){
+void setSocketToCommunicateWithHubServer(int *server_socket){
 	char buf[512];
 	int recv_len, slen = sizeof(hubserver_25565_socket);
 	ethernet_xbox_socket.sin_family = AF_INET;
@@ -112,6 +113,7 @@ void *ethernet_listener_thread(void *arg){
 	}
 }
 
+/* NOT BEING USED */
 void handle_threads(int *ethernet_socket, int *wifi_8080_socket){
 	pthread_t threads[2];
 	struct thread_data t_data[2];
@@ -156,55 +158,88 @@ void create_listener_thread_wifi(int *curr_socket, struct thread_data *t_data){
 }
 
 int main(int argc, char *argv[]){
-	// Ethernet socket listens on port 3074 and hears communication
-	// from Xbox and Wlan0
-	
-	
-	//int ethernet_socket;
+	/*
+		Create 3 Sockets:
+			1) Internet facing that handles communication to and from hub-server	[port 8080]
+			2) Ethernet facing that handles BROADCAST packets						[port 3074]
+			3) Ethernet facing that handles direct packets to Raspberry pi			[port 3074]
+	*/
+	int internet_to_rpi_bridge_socket;
+	int rpi_ethernet_BROADCAST_socket;
+	int rpi_ethernet_DIRECT_socket;
+
+	char* rpi_ip = "192.168.1.205";			// TODO: Get these via function call
+	char* broadcast_ip = "192.168.2.1";		// TODO: Get these via function call
+
+	create_udp_socket(&internet_to_rpi_bridge_socket, "192.168.1.205", 8080);	// This IP is the R-PI's
+	create_udp_socket(&rpi_ethernet_BROADCAST_socket, "192.168.2.1", 3074);		// This is the broadcast address so that we can broadcast packets from internet to xbox
+	create_udp_socket(&rpi_ethernet_DIRECT_socket, "192.168.1.205", 3074);
+
+	struct thread_data t_data[2];
+	t_data[0].socket = &internet_to_rpi_bridge_socket;
+	t_data[0].port_num = 8080;
+	t_data[0].thread_id = 1;
+	t_data[1].socket = &rpi_ethernet_BROADCAST_socket;
+	t_data[1].port_num = 3074;
+	t_data[1].thread_id = 2;
+	t_data[2].socket = &rpi_ethernet_DIRECT_socket;
+	t_data[2].port_num = 3074;
+	t_data[2].thread_id = 3;
+
+	// Establish Communications with Hubserver
+	setSocketToCommunicateWithHubServer(&internet_to_rpi_bridge_socket);
+
+	// Create threads for the sockets we just made
+	create_listener_thread_wifi(&internet_to_rpi_bridge_socket, &t_data[0]);
+	create_listener_thread_eth(&rpi_ethernet_BROADCAST_socket, &t_data[1]);
+	create_listener_thread_eth(&rpi_ethernet_DIRECT_socket, &t_data[2]);
+
+	/* OLD CODE BELOW */
 	
 	
 	// Wifi socket listens on 8080 and communicates between the
 	// ethernet socket and the router
 	// Responsible for filtering LAN game packets and sending to hub-server
 	// other wise itll just send it to the ethernet interface
-	int wifi_8080_socket; //Handles communication between hub-server and RPI
+	// int wifi_8080_socket; //Handles communication between hub-server and RPI
 	// Xbox IP is 192.168.2.52 (use 'arp -a')
 
 	//create_udp_socket(&ethernet_socket, BROADCAST_ADDRESS, 3074); // Xbox IP use arp -a
-	create_udp_socket(&wifi_8080_socket, "192.168.1.205", 8080);
-	incoming_traffic_listener_setup(&wifi_8080_socket);
+	// create_udp_socket(&wifi_8080_socket, "192.168.1.205", 8080);
+	// setSocketToCommunicateWithHubServer(&wifi_8080_socket);
 	
 	
 	//TODO: uncomment this
 	//handle_threads(&ethernet_socket, &wifi_8080_socket);
 
 	// THIS IS TEMPORARY //
-	int port_nums[6] = {88, 3074, 53, 500, 3544, 4500};
-	int udp_sockets[NUM_THREADS-1];
-	struct thread_data t_data[NUM_THREADS];
-	t_data[0].socket = &wifi_8080_socket;
-	t_data[0].thread_id = THREAD_ID;
-	t_data[0].port_num = 8080;
-	create_listener_thread_wifi(&wifi_8080_socket, &t_data[0]);
-	THREAD_ID+=1;
-	for(int i=0; i<NUM_THREADS-1; i++){
-		/*if(port_nums[i] == 3074)
+	// int port_nums[6] = {88, 3074, 53, 500, 3544, 4500};
+	// int udp_sockets[NUM_THREADS-1];
+	// struct thread_data t_data[NUM_THREADS];
+	// t_data[0].socket = &wifi_8080_socket;
+	// t_data[0].thread_id = THREAD_ID;
+	// t_data[0].port_num = 8080;
+	// create_listener_thread_wifi(&wifi_8080_socket, &t_data[0]);
+	// create_listener_thread_eth();
+	// THREAD_ID+=1;
+	/* for(int i=0; i<NUM_THREADS-1; i++){
+		if(port_nums[i] == 3074)
 			create_udp_socket(&udp_sockets[i], BROADCAST_ADDRESS, port_nums[i]);
 		else
-			create_udp_socket(&udp_sockets[i], "192.168.1.205", port_nums[i]);*/
+			create_udp_socket(&udp_sockets[i], "192.168.1.205", port_nums[i]);
 		create_udp_socket(&udp_sockets[i], BROADCAST_ADDRESS, port_nums[i]);
 		t_data[i+1].socket = &udp_sockets[i];
 		t_data[i+1].thread_id = THREAD_ID;
 		t_data[i+1].port_num = port_nums[i];
 		create_listener_thread_eth(&udp_sockets[i], &t_data[i+1]);
 		THREAD_ID+=1;
-	}
-	for(int i=0; i<NUM_THREADS; i++){
-		if( pthread_join(*(threads+(i*sizeof(pthread_t))), NULL) != 0 ){
-			printf("ERROR JOINING SOCKET #%d\n", i);
-			exit(EXIT_FAILURE);
-		}
-	}
+	} */ 
+	// for(int i=0; i<NUM_THREADS; i++){
+	// 	if( pthread_join(*(threads+(i*sizeof(pthread_t))), NULL) != 0 ){
+	// 		printf("ERROR JOINING SOCKET #%d\n", i);
+	// 		exit(EXIT_FAILURE);
+	// 	}
+	// }
 	//////////////////////
 
 
