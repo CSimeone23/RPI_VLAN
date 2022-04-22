@@ -53,7 +53,7 @@ void setSocketToCommunicateWithHubServer(int *server_socket){
 	HUBSERVER_ADDRESS.sin_addr.s_addr = inet_addr("192.168.1.190"); //100.1.75.26 for Farm House // 100.8.130.221 is for external
 	// Introduce server_socket and laptop_socket (hub server)
 	char init_message[18] = "talk to me shawty";
-	int bytes_sent = send_datagram(*server_socket, init_message, 18, (const struct sockaddr*) &HUBSERVER_ADDRESS, slen);
+	int bytes_sent = send_datagram(*server_socket, init_message, 18, (struct sockaddr*) &HUBSERVER_ADDRESS, slen);
 	// int bytes_sent = sendto(*server_socket, init_message, 18, 0, (const struct sockaddr*) &HUBSERVER_ADDRESS, slen);
 	printf("%d", bytes_sent);
 	if( bytes_sent == -1) {
