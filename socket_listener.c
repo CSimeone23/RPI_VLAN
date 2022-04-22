@@ -154,7 +154,7 @@ int main(int argc, char *argv[]){
 
 	create_udp_socket(&internet_to_rpi_bridge_socket, "192.168.1.205", 8080);	// This IP is the R-PI's
 	create_udp_socket(&rpi_ethernet_BROADCAST_socket, "192.168.2.1", 3074);		// This is the broadcast address so that we can broadcast packets from internet to xbox
-	//create_udp_socket(&rpi_ethernet_DIRECT_socket, "127.0.0.1", 3074);
+	create_udp_socket(&rpi_ethernet_DIRECT_socket, "192.168.1.205", 3074);
 
 	struct thread_data t_data[2];
 	t_data[0].socket = &internet_to_rpi_bridge_socket;
