@@ -44,7 +44,7 @@ void setSocketToCommunicateWithHubServer(int *server_socket){
 	int bytes_sent = sendto(*server_socket, init_message, 18, 0, (const struct sockaddr*) &hubserver_25565_socket, slen);
 	printf("%d", bytes_sent);
 	if( bytes_sent == -1){
-		printf("ERRROR SENDING INIT MESSAGE TO SERVER, ERROR CODE: %d\n", errno);
+		printf("ERRROR SENDING INIT MESSAGE TO SERVER, ERROR CODE: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 	printf("Incoming traffic listener setup completed successfully!\n");
