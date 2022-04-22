@@ -29,9 +29,13 @@ struct thread_data {
 void setSocketToCommunicateWithHubServer(int *server_socket){
 	char buf[512];
 	int recv_len, slen = sizeof(hubserver_25565_socket);
+
+	// PLEASE MOVE THIS CODE BLOCK ELSEWHERE
 	ethernet_xbox_socket.sin_family = AF_INET;
 	ethernet_xbox_socket.sin_port = htons(3074);
 	ethernet_xbox_socket.sin_addr.s_addr = inet_addr("192.168.2.1");//This is the broadcast address, 192.168.2.52 is the actual ip of the XBOX
+	////////////////////////////////////////
+	
 	hubserver_25565_socket.sin_family = AF_INET;
 	hubserver_25565_socket.sin_port = htons(25565);
 	hubserver_25565_socket.sin_addr.s_addr = inet_addr("192.168.1.190"); //100.1.75.26 for Farm House // 100.8.130.221 is for external
@@ -40,7 +44,7 @@ void setSocketToCommunicateWithHubServer(int *server_socket){
 	int bytes_sent = sendto(*server_socket, init_message, 18, 0, (const struct sockaddr*) &hubserver_25565_socket, slen);
 	printf("%d", bytes_sent);
 	if( bytes_sent == -1){
-		printf("ERRROR SENDING INIT MESSAGE TO SERVER\n");
+		printf("ERRROR SENDING INIT MESSAGE TO SERVER, ERROR CODE: %d\n", WSAGetLastError());
 		exit(EXIT_FAILURE);
 	}
 	printf("Incoming traffic listener setup completed successfully!\n");
