@@ -154,7 +154,7 @@ int main(int argc, char *argv[]){
 
 	create_udp_socket(&internet_to_rpi_bridge_socket, "192.168.1.205", 8080);	// This IP is the R-PI's
 	create_udp_socket(&rpi_ethernet_BROADCAST_socket, "192.168.2.1", 3074);		// This is the broadcast address so that we can broadcast packets from internet to xbox
-	// create_udp_socket(&rpi_ethernet_DIRECT_socket, "192.168.1.205", 3074);
+	create_udp_socket(&rpi_ethernet_DIRECT_socket, "192.168.1.205", 3074);
 
 	struct thread_data t_data[2];
 	t_data[0].socket = &internet_to_rpi_bridge_socket;
@@ -163,9 +163,9 @@ int main(int argc, char *argv[]){
 	t_data[1].socket = &rpi_ethernet_BROADCAST_socket;
 	t_data[1].port_num = 3074;
 	t_data[1].thread_id = 2;
-	// t_data[2].socket = &rpi_ethernet_DIRECT_socket;
-	// t_data[2].port_num = 3074;
-	// t_data[2].thread_id = 2;
+	t_data[2].socket = &rpi_ethernet_DIRECT_socket;
+	t_data[2].port_num = 3074;
+	t_data[2].thread_id = 2;
 
 	// Establish Communications with Hubserver
 	setSocketToCommunicateWithHubServer(&internet_to_rpi_bridge_socket);
@@ -173,7 +173,7 @@ int main(int argc, char *argv[]){
 	// Create threads for the sockets we just made
 	create_listener_thread_wifi(&internet_to_rpi_bridge_socket, &t_data[0]);
 	create_listener_thread_eth(&rpi_ethernet_BROADCAST_socket, &t_data[1]);
-	// create_listener_thread_eth(&rpi_ethernet_DIRECT_socket, &t_data[2]);
+	create_listener_thread_eth(&rpi_ethernet_DIRECT_socket, &t_data[2]);
 
 	 for(int i=0; i<NUM_THREADS; i++){
 		if( pthread_join(*(threads+(i*sizeof(pthread_t))), NULL) != 0 ){
