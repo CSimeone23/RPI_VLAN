@@ -13,7 +13,7 @@
 
 #define BROADCAST_ADDRESS "255.255.255.255"
 #define NUM_THREADS 3
-#define HUBSERVER_IP "192.168.1.205"
+// #define HUBSERVER_IP "192.168.1.205"
 
 int THREAD_ID = 1;
 struct sockaddr_in ethernet_xbox_socket;
@@ -41,9 +41,10 @@ void setSocketToCommunicateWithHubServer(int *server_socket){
 	HUBSERVER_ADDRESS.sin_addr.s_addr = inet_addr("192.168.1.190"); //100.1.75.26 for Farm House // 100.8.130.221 is for external
 	// Introduce server_socket and laptop_socket (hub server)
 	char init_message[18] = "talk to me shawty";
-	int bytes_sent = sendto(*server_socket, init_message, 18, 0, (const struct sockaddr*) &HUBSERVER_ADDRESS, slen);
+	int bytes_sent = send_datagram(*server_socket, init_message, 18, (const struct sockaddr*) &HUBSERVER_ADDRESS, slen);
+	// int bytes_sent = sendto(*server_socket, init_message, 18, 0, (const struct sockaddr*) &HUBSERVER_ADDRESS, slen);
 	printf("%d", bytes_sent);
-	if( bytes_sent == -1){
+	if( bytes_sent == -1) {
 		printf("ERRROR SENDING INIT MESSAGE TO SERVER, ERROR MSG: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
@@ -56,7 +57,7 @@ int send_datagram(int socket, char *buf, size_t recv_len, struct sockaddr* to, i
 	if(send_to == -1){
 		//TODO: DELETE HANDLE_ERROR CALL
 		handle_error("sendto");
-		printf("ERROR SENDING DATA\n");
+		printf("ERROR SENDING DATA: %s\n", strerror(errno));
 		return -1;
 	}
 	return 1;
