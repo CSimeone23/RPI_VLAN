@@ -163,6 +163,9 @@ int main(int argc, char *argv[]){
 	t_data[1].socket = &rpi_ethernet_BROADCAST_socket;
 	t_data[1].port_num = 3074;
 	t_data[1].thread_id = 2;
+	t_data[2].socket = &rpi_ethernet_DIRECT_socket;
+	t_data[2].port_num = 3074;
+	t_data[2].thread_id = 2;
 
 	// Establish Communications with Hubserver
 	setSocketToCommunicateWithHubServer(&internet_to_rpi_bridge_socket);
