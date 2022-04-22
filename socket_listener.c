@@ -17,7 +17,7 @@
 
 int THREAD_ID = 1;
 struct sockaddr_in ethernet_xbox_socket;
-struct sockaddr_in hubserver_25565_socket;
+struct sockaddr_in HUBSERVER_ADDRESS;
 pthread_t threads[NUM_THREADS];
 
 struct thread_data {
@@ -28,7 +28,7 @@ struct thread_data {
 
 void setSocketToCommunicateWithHubServer(int *server_socket){
 	char buf[512];
-	int recv_len, slen = sizeof(hubserver_25565_socket);
+	int recv_len, slen = sizeof(HUBSERVER_ADDRESS);
 
 	// PLEASE MOVE THIS CODE BLOCK ELSEWHERE
 	ethernet_xbox_socket.sin_family = AF_INET;
@@ -36,15 +36,15 @@ void setSocketToCommunicateWithHubServer(int *server_socket){
 	ethernet_xbox_socket.sin_addr.s_addr = inet_addr("192.168.2.1");//This is the broadcast address, 192.168.2.52 is the actual ip of the XBOX
 	////////////////////////////////////////
 	
-	hubserver_25565_socket.sin_family = AF_INET;
-	hubserver_25565_socket.sin_port = htons(25565);
-	hubserver_25565_socket.sin_addr.s_addr = inet_addr("192.168.1.190"); //100.1.75.26 for Farm House // 100.8.130.221 is for external
+	HUBSERVER_ADDRESS.sin_family = AF_INET;
+	HUBSERVER_ADDRESS.sin_port = htons(25565);
+	HUBSERVER_ADDRESS.sin_addr.s_addr = inet_addr("192.168.1.190"); //100.1.75.26 for Farm House // 100.8.130.221 is for external
 	// Introduce server_socket and laptop_socket (hub server)
 	char init_message[18] = "talk to me shawty";
-	int bytes_sent = sendto(*server_socket, init_message, 18, 0, (const struct sockaddr*) &hubserver_25565_socket, slen);
+	int bytes_sent = sendto(*server_socket, init_message, 18, 0, (const struct sockaddr*) &HUBSERVER_ADDRESS, slen);
 	printf("%d", bytes_sent);
 	if( bytes_sent == -1){
-		printf("ERRROR SENDING INIT MESSAGE TO SERVER, ERROR CODE: %s\n", strerror(errno));
+		printf("ERRROR SENDING INIT MESSAGE TO SERVER, ERROR MSG: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 	printf("Incoming traffic listener setup completed successfully!\n");
@@ -109,7 +109,7 @@ void *ethernet_listener_thread(void *arg){
 		printf("Ethernet thread received packet from %s:%d\nData: %s\n", inet_ntoa(incoming_socket.sin_addr), ntohs(incoming_socket.sin_port), buf);
 
 		// Send Data out to HUBSERVER	[XBOX -> R-PI -> HUBSERVER]
-		send_to = send_datagram(*(t_data->socket), buf, recv_len, (struct sockaddr*) &hubserver_25565_socket, slen);
+		send_to = send_datagram(*(t_data->socket), buf, recv_len, (struct sockaddr*) &HUBSERVER_ADDRESS, slen);
 		if(send_to == -1){
 			printf("ERROR SENDING DATA TO HUBSERVER\n");
 			continue;
@@ -197,6 +197,13 @@ int main(int argc, char *argv[]){
 	create_listener_thread_wifi(&internet_to_rpi_bridge_socket, &t_data[0]);
 	create_listener_thread_eth(&rpi_ethernet_BROADCAST_socket, &t_data[1]);
 	create_listener_thread_eth(&rpi_ethernet_DIRECT_socket, &t_data[2]);
+
+	 for(int i=0; i<NUM_THREADS; i++){
+		if( pthread_join(*(threads+(i*sizeof(pthread_t))), NULL) != 0 ){
+			printf("ERROR JOINING SOCKET #%d\n", i);
+			exit(EXIT_FAILURE);
+		}
+	}
 
 	/* OLD CODE BELOW */
 	
