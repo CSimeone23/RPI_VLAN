@@ -167,6 +167,8 @@ int main(int argc, char *argv[]){
 	// Establish Communications with Hubserver
 	setSocketToCommunicateWithHubServer(internet_to_rpi_bridge_socket);
 
+	exit(EXIT_SUCCESS);
+
 	// Create threads for the sockets we just made
 	struct thread_data t_data[2];
 	t_data[0].socket = &internet_to_rpi_bridge_socket;
@@ -178,7 +180,7 @@ int main(int argc, char *argv[]){
 	t_data[2].socket = &rpi_ethernet_DIRECT_socket;
 	t_data[2].port_num = 3074;
 	t_data[2].thread_id = 3;
-	
+
 	create_listener_thread_wifi(&internet_to_rpi_bridge_socket, &t_data[0]);
 	create_listener_thread_eth(&rpi_ethernet_BROADCAST_socket, &t_data[1]);
 	create_listener_thread_eth(&rpi_ethernet_DIRECT_socket, &t_data[2]);
