@@ -42,7 +42,7 @@ void setSocketToCommunicateWithHubServer(int *server_socket){
 	// PLEASE MOVE THIS CODE BLOCK ELSEWHERE
 	ethernet_xbox_socket.sin_family = AF_INET;
 	ethernet_xbox_socket.sin_port = htons(3074);
-	ethernet_xbox_socket.sin_addr.s_addr = inet_addr("192.168.2.1");//This is the broadcast address, 192.168.2.52 is the actual ip of the XBOX
+	ethernet_xbox_socket.sin_addr.s_addr = inet_addr("0.0.0.1");//This is the broadcast address, 192.168.2.52 is the actual ip of the XBOX
 	////////////////////////////////////////
 	
 	HUBSERVER_ADDRESS.sin_family = AF_INET;
@@ -74,7 +74,9 @@ void *wifi_listener_thread(void *arg){
 		// WIFI -> R-PI -> XBOX
 		// Using the broadcast address for now just so I dont need to worry about the specific IP of the XBOX
 		printf("Sending data to xbox...\n");
-		send_datagram((int) *(t_data->socket), buf, recv_len, (struct sockaddr*) &ethernet_xbox_socket, slen);
+		// send_datagram((int) *(t_data->socket), buf, recv_len, (struct sockaddr*) &ethernet_xbox_socket, slen);
+		// HARDCODING
+		send_datagram((int) *(t_data->socket), "h", 1, (struct sockaddr*) &ethernet_xbox_socket, slen );
 		printf("Successfully sent data to Xbox!\n");
 	}
 }
