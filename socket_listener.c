@@ -153,7 +153,7 @@ int main(int argc, char *argv[]){
 	char* broadcast_ip = "192.168.2.1";		// TODO: Get these via function call
 
 	create_udp_socket(&internet_to_rpi_bridge_socket, "192.168.1.205", 8080);	// This IP is the R-PI's
-	create_udp_socket(&rpi_ethernet_BROADCAST_socket, "192.168.2.1", 3074);		// This is the broadcast address so that we can broadcast packets from internet to xbox
+	//create_udp_socket(&rpi_ethernet_BROADCAST_socket, "192.168.2.1", 3074);		// This is the broadcast address so that we can broadcast packets from internet to xbox
 	create_udp_socket(&rpi_ethernet_DIRECT_socket, "192.168.1.205", 3074);
 
 	struct thread_data t_data[2];
@@ -172,7 +172,7 @@ int main(int argc, char *argv[]){
 
 	// Create threads for the sockets we just made
 	create_listener_thread_wifi(&internet_to_rpi_bridge_socket, &t_data[0]);
-	create_listener_thread_eth(&rpi_ethernet_BROADCAST_socket, &t_data[1]);
+	//create_listener_thread_eth(&rpi_ethernet_BROADCAST_socket, &t_data[1]);
 	create_listener_thread_eth(&rpi_ethernet_DIRECT_socket, &t_data[2]);
 
 	 for(int i=0; i<NUM_THREADS; i++){
