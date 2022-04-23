@@ -50,7 +50,7 @@ void setSocketToCommunicateWithHubServer(int *server_socket){
 	HUBSERVER_ADDRESS.sin_addr.s_addr = inet_addr("192.168.1.190"); //100.1.75.26 for Farm House // 100.8.130.221 is for external
 	// Introduce server_socket and laptop_socket (hub server)
 	char init_message[18] = "talk to me shawty";
-	print("DEBUG WITHIN: %d\n", *server_socket);
+	printf("DEBUG WITHIN: %d\n", *server_socket);
 	send_datagram(*server_socket, init_message, 18, (struct sockaddr*) &HUBSERVER_ADDRESS, slen);
 	printf("Incoming traffic listener setup completed successfully!\n");
 }
