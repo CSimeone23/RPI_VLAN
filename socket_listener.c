@@ -35,7 +35,7 @@ void send_datagram(int socket, char *buf, size_t recv_len, struct sockaddr* to, 
 	}
 }
 
-void setSocketToCommunicateWithHubServer(int server_socket){
+void setSocketToCommunicateWithHubServer(int *server_socket){
 	char buf[512];
 	int recv_len, slen = sizeof(HUBSERVER_ADDRESS);
 
@@ -50,8 +50,7 @@ void setSocketToCommunicateWithHubServer(int server_socket){
 	HUBSERVER_ADDRESS.sin_addr.s_addr = inet_addr("192.168.1.190"); //100.1.75.26 for Farm House // 100.8.130.221 is for external
 	// Introduce server_socket and laptop_socket (hub server)
 	char init_message[18] = "talk to me shawty";
-	printf("DEBUG WITHIN: %d\n", server_socket);
-	send_datagram(server_socket, init_message, 18, (struct sockaddr*) &HUBSERVER_ADDRESS, slen);
+	send_datagram(*server_socket, init_message, 18, (struct sockaddr*) &HUBSERVER_ADDRESS, slen);
 	printf("Incoming traffic listener setup completed successfully!\n");
 }
 
@@ -159,13 +158,11 @@ int main(int argc, char *argv[]){
 	char* broadcast_ip = "192.168.2.1";		// TODO: Get these via function call
 
 	create_udp_socket(&internet_to_rpi_bridge_socket, "192.168.1.205", 8080);	// This IP is the R-PI's
-	printf("DEBUG: %d\n", internet_to_rpi_bridge_socket);
 	create_udp_socket(&rpi_ethernet_BROADCAST_socket, "192.168.2.1", 3074);		// This is the broadcast address so that we can broadcast packets from internet to xbox
 	create_udp_socket(&rpi_ethernet_DIRECT_socket, "192.168.1.205", 3074);
-	printf("DEBUG AFTER: %d\n", internet_to_rpi_bridge_socket);
 
 	// Establish Communications with Hubserver
-	setSocketToCommunicateWithHubServer(internet_to_rpi_bridge_socket);
+	setSocketToCommunicateWithHubServer(&internet_to_rpi_bridge_socket);
 
 	exit(EXIT_SUCCESS);
 
