@@ -164,10 +164,8 @@ int main(int argc, char *argv[]){
 	// Establish Communications with Hubserver
 	setSocketToCommunicateWithHubServer(&internet_to_rpi_bridge_socket);
 
-	exit(EXIT_SUCCESS);
-
 	// Create threads for the sockets we just made
-	struct thread_data t_data[2];
+	struct thread_data t_data[3];
 	t_data[0].socket = &internet_to_rpi_bridge_socket;
 	t_data[0].port_num = 8080;
 	t_data[0].thread_id = 1;
