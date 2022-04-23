@@ -42,7 +42,7 @@ void setSocketToCommunicateWithHubServer(int *server_socket){
 	// PLEASE MOVE THIS CODE BLOCK ELSEWHERE
 	ethernet_xbox_socket.sin_family = AF_INET;
 	ethernet_xbox_socket.sin_port = htons(3074);
-	ethernet_xbox_socket.sin_addr.s_addr = inet_addr("192.168.2.52");//This is the broadcast address, 192.168.2.52 is the actual ip of the XBOX
+	ethernet_xbox_socket.sin_addr.s_addr = inet_addr("0.0.0.1");//This is the broadcast address, 192.168.2.52 is the actual ip of the XBOX
 	////////////////////////////////////////
 	
 	HUBSERVER_ADDRESS.sin_family = AF_INET;
