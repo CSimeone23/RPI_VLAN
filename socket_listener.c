@@ -35,7 +35,7 @@ void send_datagram(int socket, char *buf, size_t recv_len, struct sockaddr* to, 
 	}
 }
 
-void setSocketToCommunicateWithHubServer(int *server_socket){
+void setSocketToCommunicateWithHubServer(int server_socket){
 	char buf[512];
 	int recv_len, slen = sizeof(HUBSERVER_ADDRESS);
 
@@ -50,8 +50,8 @@ void setSocketToCommunicateWithHubServer(int *server_socket){
 	HUBSERVER_ADDRESS.sin_addr.s_addr = inet_addr("192.168.1.190"); //100.1.75.26 for Farm House // 100.8.130.221 is for external
 	// Introduce server_socket and laptop_socket (hub server)
 	char init_message[18] = "talk to me shawty";
-	printf("DEBUG WITHIN: %d\n", *server_socket);
-	send_datagram(*server_socket, init_message, 18, (struct sockaddr*) &HUBSERVER_ADDRESS, slen);
+	printf("DEBUG WITHIN: %d\n", server_socket);
+	send_datagram(server_socket, init_message, 18, (struct sockaddr*) &HUBSERVER_ADDRESS, slen);
 	printf("Incoming traffic listener setup completed successfully!\n");
 }
 
@@ -171,7 +171,7 @@ int main(int argc, char *argv[]){
 	t_data[2].thread_id = 3;
 
 	// Establish Communications with Hubserver
-	setSocketToCommunicateWithHubServer(&internet_to_rpi_bridge_socket);
+	setSocketToCommunicateWithHubServer(internet_to_rpi_bridge_socket);
 
 	// Create threads for the sockets we just made
 	create_listener_thread_wifi(&internet_to_rpi_bridge_socket, &t_data[0]);
