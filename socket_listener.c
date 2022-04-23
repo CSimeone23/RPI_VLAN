@@ -150,36 +150,36 @@ int main(int argc, char *argv[]){
 			2) Ethernet facing that handles BROADCAST packets						[port 3074]
 			3) Ethernet facing that handles direct packets to Raspberry pi			[port 3074]
 	*/
-	int internet_to_rpi_bridge_socket;
-	int rpi_ethernet_BROADCAST_socket;
-	int rpi_ethernet_DIRECT_socket;
+	int wifi_facing_8080_socket;
+	int ethernet_facing_BROADCAST_socket;
+	int ethernet_facing_BROADCAST_socket2;
 
 	char* rpi_ip = "192.168.1.205";			// TODO: Get these via function call
 	char* broadcast_ip = "192.168.2.1";		// TODO: Get these via function call
 
-	create_udp_socket(&internet_to_rpi_bridge_socket, "192.168.1.205", 8080);	// This IP is the R-PI's
-	create_udp_socket(&rpi_ethernet_BROADCAST_socket, "192.168.2.255", 3074);		// This is the broadcast address so that we can broadcast packets from internet to xbox
+	create_udp_socket(&wifi_facing_8080_socket, "192.168.1.205", 8080);	// This IP is the R-PI's
+	create_udp_socket(&ethernet_facing_BROADCAST_socket, "192.168.2.255", 3074);		// This is the broadcast address so that we can broadcast packets from internet to xbox
 	// create_udp_socket(&rpi_ethernet_DIRECT_socket, "192.168.1.205", 3074);
-	create_udp_socket(&rpi_ethernet_DIRECT_socket, BROADCAST_ADDRESS, 3074);
+	create_udp_socket(&ethernet_facing_BROADCAST_socket2, BROADCAST_ADDRESS, 3074);
 
 	// Establish Communications with Hubserver
-	setSocketToCommunicateWithHubServer(&internet_to_rpi_bridge_socket);
+	setSocketToCommunicateWithHubServer(&wifi_facing_8080_socket);
 
 	// Create threads for the sockets we just made
 	struct thread_data t_data[3];
-	t_data[0].socket = &internet_to_rpi_bridge_socket;
+	t_data[0].socket = &wifi_facing_8080_socket;
 	t_data[0].port_num = 8080;
 	t_data[0].thread_id = 1;
-	t_data[1].socket = &rpi_ethernet_BROADCAST_socket;
+	t_data[1].socket = &ethernet_facing_BROADCAST_socket;
 	t_data[1].port_num = 3074;
 	t_data[1].thread_id = 2;
-	t_data[2].socket = &rpi_ethernet_DIRECT_socket;
+	t_data[2].socket = &ethernet_facing_BROADCAST_socket2;
 	t_data[2].port_num = 3074;
 	t_data[2].thread_id = 3;
 
-	create_listener_thread_wifi(&internet_to_rpi_bridge_socket, &t_data[0]);
-	create_listener_thread_eth(&rpi_ethernet_BROADCAST_socket, &t_data[1]);
-	create_listener_thread_eth(&rpi_ethernet_DIRECT_socket, &t_data[2]);
+	create_listener_thread_wifi(&wifi_facing_8080_socket, &t_data[0]);
+	create_listener_thread_eth(&ethernet_facing_BROADCAST_socket, &t_data[1]);
+	create_listener_thread_eth(&ethernet_facing_BROADCAST_socket2, &t_data[2]);
 
 	 for(int i=0; i<NUM_THREADS; i++){
 		if( pthread_join(*(threads+(i*sizeof(pthread_t))), NULL) != 0 ){
