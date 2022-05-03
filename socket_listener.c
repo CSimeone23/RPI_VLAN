@@ -190,23 +190,34 @@ int main(int argc, char *argv[]){
 	int ethernet_facing_BROADCAST_socket;
 	int ethernet_facing_BROADCAST_socket2;
 
-	char* rpi_ip = "192.168.1.205";			// TODO: Get these via function call
-	char* broadcast_ip = "192.168.2.1";		// TODO: Get these via function call
+	char* rpi_ip = "192.168.1.205";				// TODO: Get these via function call
+	char* broadcast_ip = "192.168.2.255";		// TODO: Get these via function call
 
 	create_udp_socket(&wifi_facing_8080_socket, "192.168.1.205", 8080);	// This IP is the R-PI's
 	create_udp_socket(&ethernet_facing_BROADCAST_socket, "192.168.2.255", 3074);		// This is the broadcast address so that we can broadcast packets from internet to xbox
-	// create_udp_socket(&rpi_ethernet_DIRECT_socket, "192.168.1.205", 3074);
 	create_udp_socket(&ethernet_facing_BROADCAST_socket2, BROADCAST_ADDRESS, 3074);
+
+	// This socket will receive from wifi and send to xbox/broadcast 
+	// This socket will be on the same network as the Xbox so it'll think its another console
+	int phaux_address_socket;
+	create_udp_socket(&phaux_address_socket, "192.168.2.1", 3074);
+
+	struct sockaddr_in PHAUX_ADDRESS;
+	PHAUX_ADDRESS.sin_family = AF_INET;
+	PHAUX_ADDRESS.sin_port = htons(3074);
+	PHAUX_ADDRESS.sin_addr.s_addr = inet_addr("192.168.2.1");
+
+
 
 	// Establish Communications with Hubserver
 	setSocketToCommunicateWithHubServer(&wifi_facing_8080_socket);
 
 	// Create threads for the sockets we just made
-	struct thread_data t_data[3];
+	struct thread_data t_data[4];
 	t_data[0].socket = &wifi_facing_8080_socket;
 	t_data[0].port_num = 8080;
 	t_data[0].thread_id = 1;
-	t_data[0].sendto_address = XBOX_ADDRESS;
+	t_data[0].sendto_address = PHAUX_ADDRESS;// XBOX_ADDRESS;
 	t_data[1].socket = &ethernet_facing_BROADCAST_socket;
 	t_data[1].port_num = 3074;
 	t_data[1].thread_id = 2;
@@ -216,6 +227,11 @@ int main(int argc, char *argv[]){
 	t_data[2].thread_id = 3;
 	t_data[2].sendto_address = HUBSERVER_ADDRESS;
 
+	t_data[3].socket = &phaux_address_socket;
+	t_data[3].port_num = 3074;
+	t_data[3].thread_id = 4;
+	t_data[3].sendto_address = XBOX_ADDRESS;
+
 	// create_listener_thread_wifi(&wifi_facing_8080_socket, &t_data[0]);
 	// create_listener_thread_eth(&ethernet_facing_BROADCAST_socket, &t_data[1]);
 	// create_listener_thread_eth(&ethernet_facing_BROADCAST_socket2, &t_data[2]);
@@ -223,6 +239,8 @@ int main(int argc, char *argv[]){
 	create_udp_listener_thread(&wifi_facing_8080_socket, &t_data[0]);
 	create_udp_listener_thread(&ethernet_facing_BROADCAST_socket, &t_data[1]);
 	create_udp_listener_thread(&ethernet_facing_BROADCAST_socket2, &t_data[2]);
+
+	create_udp_listener_thread(&phaux_address_socket, &t_data[3]);
 
 	 for(int i=0; i<NUM_THREADS; i++){
 		if( pthread_join(*(threads+(i*sizeof(pthread_t))), NULL) != 0 ){
