@@ -55,32 +55,32 @@ void setSocketToCommunicateWithHubServer(int *server_socket){
 	printf("Incoming traffic listener setup completed successfully!\n");
 }
 
-void *wifi_listener_thread(void *arg){
-	struct thread_data *t_data = arg;
-	char *buf = calloc(512, sizeof(char));
-	struct sockaddr_in incoming_socket;
-	int recv_len;
-	int slen = sizeof(incoming_socket);
-	while(1){
-		printf("Waiting for data on Wifi Thread!\n");
-		fflush(stdin);
-		memset(buf, ' ', 512);
-		recv_len = recvfrom(*(t_data->socket), buf, 512, 0, (struct sockaddr*) &incoming_socket, (unsigned int*) &slen);
-		if( recv_len == -1 ){
-			printf("ERROR LISTENING ON WIFI THREAD!\n");
-			continue;
-		}
-		printf("Wifi thread received packet from %s:%d\nData: %s\n", inet_ntoa(incoming_socket.sin_addr), ntohs(incoming_socket.sin_port), buf);
+// void *wifi_listener_thread(void *arg){
+// 	struct thread_data *t_data = arg;
+// 	char *buf = calloc(512, sizeof(char));
+// 	struct sockaddr_in incoming_socket;
+// 	int recv_len;
+// 	int slen = sizeof(incoming_socket);
+// 	while(1){
+// 		printf("Waiting for data on Wifi Thread!\n");
+// 		fflush(stdin);
+// 		memset(buf, ' ', 512);
+// 		recv_len = recvfrom(*(t_data->socket), buf, 512, 0, (struct sockaddr*) &incoming_socket, (unsigned int*) &slen);
+// 		if( recv_len == -1 ){
+// 			printf("ERROR LISTENING ON WIFI THREAD!\n");
+// 			continue;
+// 		}
+// 		printf("Wifi thread received packet from %s:%d\nData: %s\n", inet_ntoa(incoming_socket.sin_addr), ntohs(incoming_socket.sin_port), buf);
 
-		// WIFI -> R-PI -> XBOX
-		// Using the broadcast address for now just so I dont need to worry about the specific IP of the XBOX
-		printf("Sending data to xbox...\n");
-		// send_datagram((int) *(t_data->socket), buf, recv_len, (struct sockaddr*) &XBOX_ADDRESS, slen);
-		// HARDCODING
-		send_datagram((int) *(t_data->socket), "h", 1, (struct sockaddr*) &XBOX_ADDRESS, slen );
-		printf("Successfully sent data to Xbox!\n");
-	}
-}
+// 		// WIFI -> R-PI -> XBOX
+// 		// Using the broadcast address for now just so I dont need to worry about the specific IP of the XBOX
+// 		printf("Sending data to xbox...\n");
+// 		// send_datagram((int) *(t_data->socket), buf, recv_len, (struct sockaddr*) &XBOX_ADDRESS, slen);
+// 		// HARDCODING
+// 		send_datagram((int) *(t_data->socket), "h", 1, (struct sockaddr*) &XBOX_ADDRESS, slen );
+// 		printf("Successfully sent data to Xbox!\n");
+// 	}
+// }
 
 // void *ethernet_listener_thread(void *arg){
 // 	struct thread_data *t_data = arg;
@@ -125,6 +125,7 @@ void *udp_listener_thread(void *arg){
 		printf("Thread #%d: Sending data to %s:%d\n", t_data->thread_id, inet_ntoa(t_data->sendto_address.sin_addr), ntohs(t_data->sendto_address.sin_port));
 
 		// TODO: Add sending logic
+		send_datagram( *(t_data->socket), buf, recv_len, (struct sockadrr*) &t_data->sendto_address, slen);
 	}
 }
 
@@ -142,12 +143,12 @@ void create_udp_listener_thread(int *socket, struct thread_data *t_data){
 	}
 }
 
-void create_listener_thread_wifi(int *curr_socket, struct thread_data *t_data){
-	// if(pthread_create(&threads[THREAD_ID-1], NULL, wifi_listener_thread, t_data) != 0){
-	// 	printf("Error Creating Thread for PORT: %d", t_data->port_num);
-	// 	exit(EXIT_FAILURE);
-	// }
-}
+// void create_listener_thread_wifi(int *curr_socket, struct thread_data *t_data){
+// 	if(pthread_create(&threads[THREAD_ID-1], NULL, wifi_listener_thread, t_data) != 0){
+// 		printf("Error Creating Thread for PORT: %d", t_data->port_num);
+// 		exit(EXIT_FAILURE);
+// 	}
+// }
 
 void create_udp_socket(int *udp_socket, char *ipv4_address, int port){
 	*udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
