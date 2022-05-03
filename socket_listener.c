@@ -107,15 +107,15 @@ void setSocketToCommunicateWithHubServer(int *server_socket){
 
 void *udp_listener_thread(void *arg){
 	struct thread_data *t_data = arg;
-	char *buf = calloc(512, sizeof(char));
 	struct sockaddr_in incoming_connection_address;
 	int recv_len;
 	int slen = sizeof(incoming_connection_address);
 
 	while(1){
 		printf("Listening for data on Thread #%d...\n", t_data->thread_id);
+		char *buf = calloc(512, sizeof(char));
 		fflush(stdin);
-		memset(buf, ' ', 512);
+		// memset(buf, ' ', 512);
 		recv_len = recvfrom(*(t_data->socket), buf, 512, 0, (struct sockaddr*) &incoming_connection_address, (unsigned int*) &slen);
 		if(recv_len == -1){
 			printf("!===!\nError listening on Thread #%d\n++++\n", t_data->thread_id);
@@ -124,8 +124,8 @@ void *udp_listener_thread(void *arg){
 		printf("Thread #%d Received: \"%s\"\n\tFrom: %s:%d\n", t_data->thread_id, buf, inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
 		printf("Thread #%d: Sending data to %s:%d\n", t_data->thread_id, inet_ntoa(t_data->sendto_address.sin_addr), ntohs(t_data->sendto_address.sin_port));
 
-		// TODO: Add sending logic
 		send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
+		free(buf);
 	}
 }
 
