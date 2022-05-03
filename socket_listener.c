@@ -43,7 +43,7 @@ void setSocketToCommunicateWithHubServer(int *server_socket){
 	// PLEASE MOVE THIS CODE BLOCK ELSEWHERE
 	XBOX_ADDRESS.sin_family = AF_INET;
 	XBOX_ADDRESS.sin_port = htons(3074);
-	XBOX_ADDRESS.sin_addr.s_addr = inet_addr("192.168.2.255");//This is the broadcast address, 192.168.2.52 is the actual ip of the XBOX
+	XBOX_ADDRESS.sin_addr.s_addr = inet_addr("255.255.255.255");//This is the broadcast address, 192.168.2.52 is the actual ip of the XBOX
 	////////////////////////////////////////
 	
 	HUBSERVER_ADDRESS.sin_family = AF_INET;
@@ -123,7 +123,11 @@ void *udp_listener_thread(void *arg){
 		}
 		printf("Thread #%d Received: \"%s\"\n\tFrom: %s:%d\n", t_data->thread_id, buf, inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
 		printf("Thread #%d: Sending data to %s:%d\n", t_data->thread_id, inet_ntoa(t_data->sendto_address.sin_addr), ntohs(t_data->sendto_address.sin_port));
-
+		// Make sure we dont get stuck in a loop
+		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1") == 0 && t_data->thread_id == 2){
+			free(buf);
+			continue;
+		}
 		send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
 		free(buf);
 	}
@@ -180,12 +184,14 @@ void create_udp_socket(int *udp_socket, char *ipv4_address, int port){
 
 
 int main(int argc, char *argv[]){
+
 	/*
 		Create 3 Sockets:
 			1) Internet facing that handles communication to and from hub-server	[port 8080]
 			2) Ethernet facing that handles BROADCAST packets						[port 3074]
 			3) Ethernet facing that handles direct packets to Raspberry pi			[port 3074]
 	*/
+
 	int wifi_facing_8080_socket;
 	int ethernet_facing_BROADCAST_socket;
 	int ethernet_facing_BROADCAST_socket2;
@@ -208,7 +214,7 @@ int main(int argc, char *argv[]){
 	PHAUX_ADDRESS.sin_addr.s_addr = inet_addr("192.168.2.1");
 
 
-
+ 
 	// Establish Communications with Hubserver
 	setSocketToCommunicateWithHubServer(&wifi_facing_8080_socket);
 
@@ -222,6 +228,7 @@ int main(int argc, char *argv[]){
 	t_data[1].port_num = 3074;
 	t_data[1].thread_id = 2;
 	t_data[1].sendto_address = HUBSERVER_ADDRESS;
+
 	t_data[2].socket = &ethernet_facing_BROADCAST_socket2;
 	t_data[2].port_num = 3074;
 	t_data[2].thread_id = 3;
