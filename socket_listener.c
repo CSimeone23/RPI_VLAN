@@ -125,7 +125,7 @@ void *udp_listener_thread(void *arg){
 		printf("Thread #%d: Sending data to %s:%d\n", t_data->thread_id, inet_ntoa(t_data->sendto_address.sin_addr), ntohs(t_data->sendto_address.sin_port));
 
 		// TODO: Add sending logic
-		send_datagram( *(t_data->socket), buf, recv_len, (struct sockadrr*) &(t_data->sendto_address), slen);
+		send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
 	}
 }
 
