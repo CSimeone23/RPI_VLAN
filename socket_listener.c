@@ -219,7 +219,9 @@ int main(int argc, char *argv[]){
 	// create_listener_thread_eth(&ethernet_facing_BROADCAST_socket, &t_data[1]);
 	// create_listener_thread_eth(&ethernet_facing_BROADCAST_socket2, &t_data[2]);
 
-	create_udp_listener_thread();
+	create_udp_listener_thread((&wifi_facing_8080_socket, &t_data[0]);
+	create_udp_listener_thread(&ethernet_facing_BROADCAST_socket, &t_data[1]);
+	create_udp_listener_thread(&ethernet_facing_BROADCAST_socket2, &t_data[2]);
 
 	 for(int i=0; i<NUM_THREADS; i++){
 		if( pthread_join(*(threads+(i*sizeof(pthread_t))), NULL) != 0 ){
