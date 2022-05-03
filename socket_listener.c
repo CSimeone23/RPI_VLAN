@@ -17,7 +17,7 @@
 // #define HUBSERVER_IP "192.168.1.205"
 
 int THREAD_ID = 1;
-struct sockaddr_in ethernet_xbox_socket;
+struct sockaddr_in XBOX_ADDRESS;
 struct sockaddr_in HUBSERVER_ADDRESS;
 pthread_t threads[NUM_THREADS];
 
@@ -25,6 +25,7 @@ struct thread_data {
 	int *socket;
 	int thread_id;
 	int port_num;
+	struct sockaddr_in sendto_address;
 };
 
 
@@ -40,9 +41,9 @@ void setSocketToCommunicateWithHubServer(int *server_socket){
 	int recv_len, slen = sizeof(HUBSERVER_ADDRESS);
 
 	// PLEASE MOVE THIS CODE BLOCK ELSEWHERE
-	ethernet_xbox_socket.sin_family = AF_INET;
-	ethernet_xbox_socket.sin_port = htons(3074);
-	ethernet_xbox_socket.sin_addr.s_addr = inet_addr("0.0.0.1");//This is the broadcast address, 192.168.2.52 is the actual ip of the XBOX
+	XBOX_ADDRESS.sin_family = AF_INET;
+	XBOX_ADDRESS.sin_port = htons(3074);
+	XBOX_ADDRESS.sin_addr.s_addr = inet_addr("0.0.0.1");//This is the broadcast address, 192.168.2.52 is the actual ip of the XBOX
 	////////////////////////////////////////
 	
 	HUBSERVER_ADDRESS.sin_family = AF_INET;
@@ -74,48 +75,78 @@ void *wifi_listener_thread(void *arg){
 		// WIFI -> R-PI -> XBOX
 		// Using the broadcast address for now just so I dont need to worry about the specific IP of the XBOX
 		printf("Sending data to xbox...\n");
-		// send_datagram((int) *(t_data->socket), buf, recv_len, (struct sockaddr*) &ethernet_xbox_socket, slen);
+		// send_datagram((int) *(t_data->socket), buf, recv_len, (struct sockaddr*) &XBOX_ADDRESS, slen);
 		// HARDCODING
-		send_datagram((int) *(t_data->socket), "h", 1, (struct sockaddr*) &ethernet_xbox_socket, slen );
+		send_datagram((int) *(t_data->socket), "h", 1, (struct sockaddr*) &XBOX_ADDRESS, slen );
 		printf("Successfully sent data to Xbox!\n");
 	}
 }
 
-void *ethernet_listener_thread(void *arg){
+// void *ethernet_listener_thread(void *arg){
+// 	struct thread_data *t_data = arg;
+// 	char *buf = calloc(512, sizeof(char));
+// 	struct sockaddr_in incoming_socket;
+// 	int recv_len;
+// 	int slen = sizeof(incoming_socket);
+// 	while(1){
+// 		printf("Waiting for data on Ethernet Xbox Thread!\n");
+// 		fflush(stdin);
+// 		memset(buf, ' ', 512);
+// 		recv_len = recvfrom(*(t_data->socket), buf, 512, 0, (struct sockaddr*) &incoming_socket, (unsigned int*) &slen);
+// 		if( recv_len == -1){
+// 			printf("ERROR LISTENING ON ETHERNET XBOX THREAD\n");
+// 			continue;
+// 		}
+// 		printf("Ethernet thread received packet from %s:%d\nData: %s\n", inet_ntoa(incoming_socket.sin_addr), ntohs(incoming_socket.sin_port), buf);
+
+// 		// Send Data out to HUBSERVER	[XBOX -> R-PI -> HUBSERVER]
+// 		printf("Sending data to hubserver\n");
+// 		send_datagram(*(t_data->socket), buf, recv_len, (struct sockaddr*) &HUBSERVER_ADDRESS, slen);
+// 	}
+// }
+
+void *udp_listener_thread(void *arg){
 	struct thread_data *t_data = arg;
 	char *buf = calloc(512, sizeof(char));
-	struct sockaddr_in incoming_socket;
+	struct sockaddr_in incoming_connection_address;
 	int recv_len;
-	int slen = sizeof(incoming_socket);
+	int slen = sizeof(incoming_connection_address);
+
 	while(1){
-		printf("Waiting for data on Ethernet Xbox Thread!\n");
+		printf("Listening for data on Thread #%d...\n", t_data->thread_id);
 		fflush(stdin);
 		memset(buf, ' ', 512);
-		recv_len = recvfrom(*(t_data->socket), buf, 512, 0, (struct sockaddr*) &incoming_socket, (unsigned int*) &slen);
-		if( recv_len == -1){
-			printf("ERROR LISTENING ON ETHERNET XBOX THREAD\n");
+		recv_len = recvfrom(*(t_data->socket), buf, 512, 0, (struct sockaddr*) &incoming_connection_address, (unsigned int*) &slen);
+		if(recv_len == -1){
+			printf("!===!\nError listening on Thread #%d\n++++\n", t_data->thread_id);
 			continue;
 		}
-		printf("Ethernet thread received packet from %s:%d\nData: %s\n", inet_ntoa(incoming_socket.sin_addr), ntohs(incoming_socket.sin_port), buf);
+		printf("Thread #%d Received: \"%s\"\n\tFrom: %s:%d\n", t_data->thread_id, buf, inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
+		printf("Thread #%d: Sending data to %s:%d\n", t_data->thread_id, inet_ntoa(t_data->sendto_address.sin_addr), ntohs(t_data->sendto_address.sin_port));
 
-		// Send Data out to HUBSERVER	[XBOX -> R-PI -> HUBSERVER]
-		printf("Sending data to hubserver\n");
-		send_datagram(*(t_data->socket), buf, recv_len, (struct sockaddr*) &HUBSERVER_ADDRESS, slen);
+		// TODO: Add sending logic
 	}
 }
 
-void create_listener_thread_eth(int *curr_socket, struct thread_data *t_data){
-	if(pthread_create(&threads[THREAD_ID-1], NULL, ethernet_listener_thread, t_data) != 0){
-		printf("Error Creating Thread for PORT: %d", t_data->port_num);
+// void create_listener_thread_eth(int *curr_socket, struct thread_data *t_data){
+// 	if(pthread_create(&threads[THREAD_ID-1], NULL, ethernet_listener_thread, t_data) != 0){
+// 		printf("Error Creating Thread for PORT: %d", t_data->port_num);
+// 		exit(EXIT_FAILURE);
+// 	}
+// }
+
+void create_udp_listener_thread(int *socket, struct thread_data *t_data){
+	if(pthread_create(&threads[THREAD_ID - 1], NULL, udp_listener_thread, t_data) != 0){
+		printf("!==!\nError creating Thread #%d\n++++\n", t_data->thread_id);
 		exit(EXIT_FAILURE);
 	}
 }
 
 void create_listener_thread_wifi(int *curr_socket, struct thread_data *t_data){
-	if(pthread_create(&threads[THREAD_ID-1], NULL, wifi_listener_thread, t_data) != 0){
-		printf("Error Creating Thread for PORT: %d", t_data->port_num);
-		exit(EXIT_FAILURE);
-	}
+	// if(pthread_create(&threads[THREAD_ID-1], NULL, wifi_listener_thread, t_data) != 0){
+	// 	printf("Error Creating Thread for PORT: %d", t_data->port_num);
+	// 	exit(EXIT_FAILURE);
+	// }
 }
 
 void create_udp_socket(int *udp_socket, char *ipv4_address, int port){
@@ -145,6 +176,8 @@ void create_udp_socket(int *udp_socket, char *ipv4_address, int port){
 	handle_error("bind");
 }
 
+
+
 int main(int argc, char *argv[]){
 	/*
 		Create 3 Sockets:
@@ -172,16 +205,21 @@ int main(int argc, char *argv[]){
 	t_data[0].socket = &wifi_facing_8080_socket;
 	t_data[0].port_num = 8080;
 	t_data[0].thread_id = 1;
+	t_data[0].sendto_address = XBOX_ADDRESS;
 	t_data[1].socket = &ethernet_facing_BROADCAST_socket;
 	t_data[1].port_num = 3074;
 	t_data[1].thread_id = 2;
+	t_data[1].sendto_address = HUBSERVER_ADDRESS;
 	t_data[2].socket = &ethernet_facing_BROADCAST_socket2;
 	t_data[2].port_num = 3074;
 	t_data[2].thread_id = 3;
+	t_data[2].sendto_address = HUBSERVER_ADDRESS;
 
-	create_listener_thread_wifi(&wifi_facing_8080_socket, &t_data[0]);
-	create_listener_thread_eth(&ethernet_facing_BROADCAST_socket, &t_data[1]);
-	create_listener_thread_eth(&ethernet_facing_BROADCAST_socket2, &t_data[2]);
+	// create_listener_thread_wifi(&wifi_facing_8080_socket, &t_data[0]);
+	// create_listener_thread_eth(&ethernet_facing_BROADCAST_socket, &t_data[1]);
+	// create_listener_thread_eth(&ethernet_facing_BROADCAST_socket2, &t_data[2]);
+
+	create_udp_listener_thread();
 
 	 for(int i=0; i<NUM_THREADS; i++){
 		if( pthread_join(*(threads+(i*sizeof(pthread_t))), NULL) != 0 ){
