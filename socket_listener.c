@@ -219,7 +219,7 @@ int main(int argc, char *argv[]){
 	// create_listener_thread_eth(&ethernet_facing_BROADCAST_socket, &t_data[1]);
 	// create_listener_thread_eth(&ethernet_facing_BROADCAST_socket2, &t_data[2]);
 
-	create_udp_listener_thread((&wifi_facing_8080_socket, &t_data[0]);
+	create_udp_listener_thread(&wifi_facing_8080_socket, &t_data[0]);
 	create_udp_listener_thread(&ethernet_facing_BROADCAST_socket, &t_data[1]);
 	create_udp_listener_thread(&ethernet_facing_BROADCAST_socket2, &t_data[2]);
 
