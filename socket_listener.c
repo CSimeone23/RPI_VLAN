@@ -48,7 +48,7 @@ void setSocketToCommunicateWithHubServer(int *server_socket){
 	// PLEASE MOVE THIS CODE BLOCK ELSEWHERE
 	TEMP_DIRECT_XBOX_ADDRESS.sin_family = AF_INET;
 	TEMP_DIRECT_XBOX_ADDRESS.sin_port = htons(3074);
-	TEMP_DIRECT_XBOX_ADDRESS.sin_addr.s_addr = inet("192.168.2.52"); //Actual xbox IP
+	TEMP_DIRECT_XBOX_ADDRESS.sin_addr.s_addr = inet_addr("192.168.2.52"); //Actual xbox IP
 	////////////////////////////////////////
 
 	XBOX_ADDRESS.sin_family = AF_INET;
