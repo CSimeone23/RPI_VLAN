@@ -95,6 +95,7 @@ void *udp_listener_thread(void *arg){
 		printf("Thread #%d Received: \"%s\"\n\tFrom: %s:%d\n", t_data->thread_id, buf, inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
 		/* TEMP */
 		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "0.0.0.1") == 0){
+			printf("\nString Length = %d\n", strlen(buf));
 			write_data_to_file(buf);
 		}
 		// Make sure we dont get stuck in a loop
