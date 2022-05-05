@@ -84,8 +84,7 @@ void *udp_listener_thread(void *arg){
 
 	while(1){
 		printf("Listening for data on Thread #%d...\n", t_data->thread_id);
-		//char *buf = malloc(512*sizeof(char));
-		int *buf = malloc(512*sizeof(int));
+		char *buf = malloc(512*sizeof(char));
 		fflush(stdin);
 		// memset(buf, ' ', 512);
 		recv_len = recvfrom(*(t_data->socket), buf, 512, 0, (struct sockaddr*) &incoming_connection_address, (unsigned int*) &slen);
@@ -109,12 +108,12 @@ void *udp_listener_thread(void *arg){
 		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1") == 0 && t_data->thread_id == 3){
 			printf("Thread #3: Preventing Infinite Loop\n");
 			printf("Thread #3: Sending it directly to the Xbox??\n");
-			//send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &TEMP_DIRECT_XBOX_ADDRESS, slen);
+			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &TEMP_DIRECT_XBOX_ADDRESS, slen);
 			free(buf);
 			continue;
 		}
 		printf("Thread #%d: Sending data to %s:%d\n", t_data->thread_id, inet_ntoa(t_data->sendto_address.sin_addr), ntohs(t_data->sendto_address.sin_port));
-		//send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
+		send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
 		free(buf);
 	}
 }
