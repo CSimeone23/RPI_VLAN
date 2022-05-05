@@ -97,11 +97,11 @@ void *udp_listener_thread(void *arg){
 		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "0.0.0.1") == 0){
 			printf("\nRecv Length = %d\n", recv_len);
 			// h...B....A..J9........AL........bw.Y.....
-			printf("Payload: ");
-			for(int i=0; i<recv_len; i++){
-				printf("%d", buf[i]);
-			}
-			printf("\n");
+			// printf("Payload: ");
+			// for(int i=0; i<recv_len; i++){
+			// 	printf("%d", buf[i]);
+			// }
+			// printf("\n");
 			//write_data_to_file(buf);
 		}
 		// Make sure we dont get stuck in a loop
