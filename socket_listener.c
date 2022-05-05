@@ -96,19 +96,19 @@ void *udp_listener_thread(void *arg){
 		printf("Thread #%d Received: \"%s\"\n\tFrom: %s:%d\n", t_data->thread_id, buf, inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
 		/* TEMP */
 		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "0.0.0.1") == 0){
-			printf("\nString Length = %d\n", strlen(buf));
-			write_data_to_file(buf);
+			printf("\nRecv Length = %d\n", recv_len);
+			//write_data_to_file(buf);
 		}
 		// Make sure we dont get stuck in a loop
 		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1") == 0 && t_data->thread_id == 3){
 			printf("Thread #3: Preventing Infinite Loop\n");
 			printf("Thread #3: Sending it directly to the Xbox??\n");
-			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &TEMP_DIRECT_XBOX_ADDRESS, slen);
+			//send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &TEMP_DIRECT_XBOX_ADDRESS, slen);
 			free(buf);
 			continue;
 		}
 		printf("Thread #%d: Sending data to %s:%d\n", t_data->thread_id, inet_ntoa(t_data->sendto_address.sin_addr), ntohs(t_data->sendto_address.sin_port));
-		send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
+		//send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
 		free(buf);
 	}
 }
