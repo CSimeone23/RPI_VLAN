@@ -84,7 +84,7 @@ void *udp_listener_thread(void *arg){
 
 	while(1){
 		printf("Listening for data on Thread #%d...\n", t_data->thread_id);
-		char *buf = calloc(512, sizeof(char));
+		char *buf = malloc(512*sizeof(char));
 		fflush(stdin);
 		// memset(buf, ' ', 512);
 		recv_len = recvfrom(*(t_data->socket), buf, 512, 0, (struct sockaddr*) &incoming_connection_address, (unsigned int*) &slen);
