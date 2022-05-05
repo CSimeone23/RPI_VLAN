@@ -93,7 +93,7 @@ void *udp_listener_thread(void *arg){
 			printf("!===!\nError listening on Thread #%d\n++++\n", t_data->thread_id);
 			continue;
 		}
-		printf("Thread #%d Received: \"%s\"\n\tFrom: %s:%d\n", t_data->thread_id, buf, inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
+		printf("Thread #%d Received: \"%X\"\n\tFrom: %s:%d\n", t_data->thread_id, buf[23], inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
 		/* TEMP */
 		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "0.0.0.1") == 0){
 			printf("\nRecv Length = %d\n", recv_len);
