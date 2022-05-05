@@ -65,6 +65,17 @@ void setSocketToCommunicateWithHubServer(int *server_socket){
 	printf("Incoming traffic listener setup completed successfully!\n");
 }
 
+void write_data_to_file(char *buf){
+	FILE *file_pointer;
+	file_pointer = fopen("./DATA.txt", "w");
+	if(file_pointer == NULL){
+		printf("File Error!\n");
+		exit(EXIT_FAILURE);
+	}
+	fprintf(file_pointer, "%s", buf);
+	fclose(file_pointer);
+}
+
 void *udp_listener_thread(void *arg){
 	struct thread_data *t_data = arg;
 	struct sockaddr_in incoming_connection_address;
@@ -82,6 +93,10 @@ void *udp_listener_thread(void *arg){
 			continue;
 		}
 		printf("Thread #%d Received: \"%s\"\n\tFrom: %s:%d\n", t_data->thread_id, buf, inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
+		/* TEMP */
+		if(strcmp(inet_ntoa(incoming_connection_address), "0.0.0.1") == 0){
+			write_data_to_file(buf);
+		}
 		// Make sure we dont get stuck in a loop
 		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1") == 0 && t_data->thread_id == 3){
 			printf("Thread #3: Preventing Infinite Loop\n");
