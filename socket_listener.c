@@ -13,16 +13,16 @@
 #include "error_handlers.h"
 
 #define BROADCAST_ADDRESS "255.255.255.255"
-#define NUM_THREADS 3
-// #define HUBSERVER_IP "192.168.1.205"
+#define NUM_THREADS 5
 
 int THREAD_ID = 1;
 struct sockaddr_in XBOX_ADDRESS;
 struct sockaddr_in HUBSERVER_ADDRESS;
 
-/* TEMP */
+// TEMP ////////////////////////////////////
 struct sockaddr_in TEMP_DIRECT_XBOX_ADDRESS;
-/* **** */
+struct sockaddr_in PHAUX_ADDRESS;
+////////////////////////////////////////////
 
 pthread_t threads[NUM_THREADS];
 
@@ -32,6 +32,24 @@ struct thread_data {
 	int port_num;
 	struct sockaddr_in sendto_address;
 };
+
+void setAddresses(){
+	TEMP_DIRECT_XBOX_ADDRESS.sin_family = AF_INET;
+	TEMP_DIRECT_XBOX_ADDRESS.sin_port = htons(3074);
+	TEMP_DIRECT_XBOX_ADDRESS.sin_addr.s_addr = inet_addr("192.168.2.52");
+
+	XBOX_ADDRESS.sin_family = AF_INET;
+	XBOX_ADDRESS.sin_port = htons(3074);
+	XBOX_ADDRESS.sin_addr.s_addr = inet_addr(BROADCAST_ADDRESS);
+	
+	HUBSERVER_ADDRESS.sin_family = AF_INET;
+	HUBSERVER_ADDRESS.sin_port = htons(25565);
+	HUBSERVER_ADDRESS.sin_addr.s_addr = inet_addr("192.168.1.190");
+
+	PHAUX_ADDRESS.sin_family = AF_INET;
+	PHAUX_ADDRESS.sin_port = htons(3074);
+	PHAUX_ADDRESS.sin_addr.s_addr = inet_addr("192.168.2.1");
+}
 
 
 void send_datagram(int socket, char *buf, size_t recv_len, struct sockaddr* to, int slen){
@@ -45,20 +63,7 @@ void setSocketToCommunicateWithHubServer(int *server_socket){
 	char buf[512];
 	int recv_len, slen = sizeof(HUBSERVER_ADDRESS);
 
-	// PLEASE MOVE THIS CODE BLOCK ELSEWHERE
-	TEMP_DIRECT_XBOX_ADDRESS.sin_family = AF_INET;
-	TEMP_DIRECT_XBOX_ADDRESS.sin_port = htons(3074);
-	TEMP_DIRECT_XBOX_ADDRESS.sin_addr.s_addr = inet_addr("192.168.2.52"); //Actual xbox IP
-	////////////////////////////////////////
-
-	XBOX_ADDRESS.sin_family = AF_INET;
-	XBOX_ADDRESS.sin_port = htons(3074);
-	XBOX_ADDRESS.sin_addr.s_addr = inet_addr("255.255.255.255");//This is the broadcast address, 192.168.2.52 is the actual ip of the XBOX
-	////////////////////////////////////////
 	
-	HUBSERVER_ADDRESS.sin_family = AF_INET;
-	HUBSERVER_ADDRESS.sin_port = htons(25565);
-	HUBSERVER_ADDRESS.sin_addr.s_addr = inet_addr("192.168.1.190"); //100.1.75.26 for Farm House // 100.8.130.221 is for external
 	// Introduce server_socket and laptop_socket (hub server)
 	char init_message[18] = "talk to me shawty";
 	send_datagram(*server_socket, init_message, 18, (struct sockaddr*) &HUBSERVER_ADDRESS, slen);
@@ -81,12 +86,10 @@ void *udp_listener_thread(void *arg){
 	struct sockaddr_in incoming_connection_address;
 	int recv_len;
 	int slen = sizeof(incoming_connection_address);
-
+	printf("Listening for data on Thread #%d...\n", t_data->thread_id);
 	while(1){
-		printf("Listening for data on Thread #%d...\n", t_data->thread_id);
 		char *buf = malloc(512*sizeof(char));
 		fflush(stdin);
-		// memset(buf, ' ', 512);
 		recv_len = recvfrom(*(t_data->socket), buf, 512, 0, (struct sockaddr*) &incoming_connection_address, (unsigned int*) &slen);
 		if(recv_len == -1){
 			printf("!===!\nError listening on Thread #%d\n++++\n", t_data->thread_id);
@@ -95,8 +98,7 @@ void *udp_listener_thread(void *arg){
 		printf("Thread #%d Received: \"%X\"\n\tFrom: %s:%d\n", t_data->thread_id, buf, inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
 		// Make sure we dont get stuck in a loop
 		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1") == 0 && t_data->thread_id == 3){
-			printf("Thread #3: Preventing Infinite Loop\n");
-			printf("Thread #3: Sending it directly to the Xbox??\n");
+			printf("Thread #%d: Preventing Infinite Loop, Sending it directly to the Xbox\n", t_data->thread_id);
 			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &TEMP_DIRECT_XBOX_ADDRESS, slen);
 			free(buf);
 			continue;
@@ -150,52 +152,47 @@ int main(int argc, char *argv[]){
 			1) Internet facing that handles communication to and from hub-server	[port 8080]
 			2) Ethernet facing that handles BROADCAST packets						[port 3074]
 			3) Ethernet facing that handles direct packets to Raspberry pi			[port 3074]
+	
+		Added 2 more sockets for testing purposes:
+			1) Phaux socket sends data to the Xbox.
+				Trying to see if having data sent from a in-network IP allows communication with Xbox
+			2) uPnP socket.
+				No clue what this actually is... It's called Universal Plug and Play that is for finding 
+				devices on local networt. Just seeing what is sent to this port.
 	*/
 
 	int wifi_facing_8080_socket;
 	int ethernet_facing_BROADCAST_socket;
 	int ethernet_facing_BROADCAST_socket2;
 
+	int phaux_address_socket;
+	int uPnP_socket;
+
 	char* rpi_ip = "192.168.1.205";				// TODO: Get these via function call
 	char* broadcast_ip = "192.168.2.255";		// TODO: Get these via function call
 
-	create_udp_socket(&wifi_facing_8080_socket, "192.168.1.205", 8080);	// This IP is the R-PI's
-	create_udp_socket(&ethernet_facing_BROADCAST_socket, "192.168.2.255", 3074);		// This is the broadcast address so that we can broadcast packets from internet to xbox
+	create_udp_socket(&wifi_facing_8080_socket, rpi_ip, 8080);	// This IP is the R-PI's
+	create_udp_socket(&ethernet_facing_BROADCAST_socket, broadcast_ip, 3074);		// This is the broadcast address so that we can broadcast packets from internet to xbox
 	create_udp_socket(&ethernet_facing_BROADCAST_socket2, BROADCAST_ADDRESS, 3074);
 
 	// This socket will receive from wifi and send to xbox/broadcast 
 	// This socket will be on the same network as the Xbox so it'll think its another console
-	int phaux_address_socket;
 	create_udp_socket(&phaux_address_socket, "192.168.2.1", 3074);
-
-	struct sockaddr_in PHAUX_ADDRESS;
-	PHAUX_ADDRESS.sin_family = AF_INET;
-	PHAUX_ADDRESS.sin_port = htons(3074);
-	PHAUX_ADDRESS.sin_addr.s_addr = inet_addr("192.168.2.1");
-
-	/* 
-		NEED TO ADD THIS:
-
-		XBOX.1900 > 239.255.255.250.1900
-
-	*/
-
-	int uPnP_socket;
 	create_udp_socket(&uPnP_socket, "192.168.2.1", 1900);
 
-	// connect upnp to hubserver
-
- 
 	// Establish Communications with Hubserver
 	setSocketToCommunicateWithHubServer(&wifi_facing_8080_socket);
 
+	// Set Sendto_Addresses
+	setAddresses();
+
 	// Create threads for the sockets we just made
-	struct thread_data t_data[5];
+	struct thread_data t_data[NUM_THREADS];
 
 	t_data[0].socket = &wifi_facing_8080_socket;
 	t_data[0].port_num = 8080;
 	t_data[0].thread_id = 1;
-	t_data[0].sendto_address = PHAUX_ADDRESS;// XBOX_ADDRESS;
+	t_data[0].sendto_address = PHAUX_ADDRESS;
 
 	t_data[1].socket = &ethernet_facing_BROADCAST_socket;
 	t_data[1].port_num = 3074;
@@ -217,10 +214,6 @@ int main(int argc, char *argv[]){
 	t_data[4].thread_id = 5;
 	t_data[4].sendto_address = HUBSERVER_ADDRESS;
 
-	// create_listener_thread_wifi(&wifi_facing_8080_socket, &t_data[0]);
-	// create_listener_thread_eth(&ethernet_facing_BROADCAST_socket, &t_data[1]);
-	// create_listener_thread_eth(&ethernet_facing_BROADCAST_socket2, &t_data[2]);
-
 	create_udp_listener_thread(&wifi_facing_8080_socket, &t_data[0]);
 	create_udp_listener_thread(&ethernet_facing_BROADCAST_socket, &t_data[1]);
 	create_udp_listener_thread(&ethernet_facing_BROADCAST_socket2, &t_data[2]);
@@ -228,7 +221,9 @@ int main(int argc, char *argv[]){
 	create_udp_listener_thread(&phaux_address_socket, &t_data[3]);
 	create_udp_listener_thread(&uPnP_socket, &t_data[4]);
 
-	 for(int i=0; i<NUM_THREADS; i++){
+
+	// Below code will hopefully never run so Im just leaving as is just in case
+	for(int i=0; i<NUM_THREADS; i++){
 		if( pthread_join(*(threads+(i*sizeof(pthread_t))), NULL) != 0 ){
 			printf("ERROR JOINING SOCKET #%d\n", i);
 			exit(EXIT_FAILURE);
