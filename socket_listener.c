@@ -108,7 +108,7 @@ void *udp_listener_thread(void *arg){
 		print_buffer_with_recv_len(buf, recv_len);
 		//
 		
-		printf("Recv_len = %d", recv_len);
+		printf("Recv_len = %d\n", recv_len);
 		// Make sure we dont get stuck in a loop
 		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1") == 0 && t_data->thread_id == 3){
 			printf("Thread #%d: Preventing Infinite Loop, Sending it directly to the Xbox\n", t_data->thread_id);
