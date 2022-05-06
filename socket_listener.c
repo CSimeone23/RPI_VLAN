@@ -92,18 +92,7 @@ void *udp_listener_thread(void *arg){
 			printf("!===!\nError listening on Thread #%d\n++++\n", t_data->thread_id);
 			continue;
 		}
-		printf("Thread #%d Received: \"%X\"\n\tFrom: %s:%d\n", t_data->thread_id, buf[23], inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
-		/* TEMP */
-		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "0.0.0.1") == 0){
-			printf("\nRecv Length = %d\n", recv_len);
-			// h...B....A..J9........AL........bw.Y.....
-			// printf("Payload: ");
-			// for(int i=0; i<recv_len; i++){
-			// 	printf("%d", buf[i]);
-			// }
-			// printf("\n");
-			//write_data_to_file(buf);
-		}
+		printf("Thread #%d Received: \"%X\"\n\tFrom: %s:%d\n", t_data->thread_id, buf, inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
 		// Make sure we dont get stuck in a loop
 		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1") == 0 && t_data->thread_id == 3){
 			printf("Thread #3: Preventing Infinite Loop\n");
@@ -184,13 +173,24 @@ int main(int argc, char *argv[]){
 	PHAUX_ADDRESS.sin_port = htons(3074);
 	PHAUX_ADDRESS.sin_addr.s_addr = inet_addr("192.168.2.1");
 
+	/* 
+		NEED TO ADD THIS:
+
+		XBOX.1900 > 239.255.255.250.1900
+
+	*/
+
+	int uPnP_socket;
+	create_udp_socket(&uPnP_socket, "192.168.2.1", 1900);
+
+	// connect upnp to hubserver
 
  
 	// Establish Communications with Hubserver
 	setSocketToCommunicateWithHubServer(&wifi_facing_8080_socket);
 
 	// Create threads for the sockets we just made
-	struct thread_data t_data[4];
+	struct thread_data t_data[5];
 
 	t_data[0].socket = &wifi_facing_8080_socket;
 	t_data[0].port_num = 8080;
@@ -212,6 +212,11 @@ int main(int argc, char *argv[]){
 	t_data[3].thread_id = 4;
 	t_data[3].sendto_address = XBOX_ADDRESS;
 
+	t_data[4].socket = &uPnP_socket;
+	t_data[4].port_num = 1900;
+	t_data[4].thread_id = 5;
+	t_data[4].sendto_address = HUBSERVER_ADDRESS;
+
 	// create_listener_thread_wifi(&wifi_facing_8080_socket, &t_data[0]);
 	// create_listener_thread_eth(&ethernet_facing_BROADCAST_socket, &t_data[1]);
 	// create_listener_thread_eth(&ethernet_facing_BROADCAST_socket2, &t_data[2]);
@@ -221,6 +226,7 @@ int main(int argc, char *argv[]){
 	create_udp_listener_thread(&ethernet_facing_BROADCAST_socket2, &t_data[2]);
 
 	create_udp_listener_thread(&phaux_address_socket, &t_data[3]);
+	create_udp_listener_thread(&uPnP_socket, &t_data[4]);
 
 	 for(int i=0; i<NUM_THREADS; i++){
 		if( pthread_join(*(threads+(i*sizeof(pthread_t))), NULL) != 0 ){
