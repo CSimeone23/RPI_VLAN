@@ -33,6 +33,14 @@ struct thread_data {
 	struct sockaddr_in sendto_address;
 };
 
+void print_buffer_with_recv_len(char *buf, int recv_len){
+	printf("\n\"");
+	for(int i=0; i<recv_len; i++){
+		printf("%c", buf[i]);
+	}
+	printf("\"\n");
+}
+
 void setAddresses(){
 	TEMP_DIRECT_XBOX_ADDRESS.sin_family = AF_INET;
 	TEMP_DIRECT_XBOX_ADDRESS.sin_port = htons(3074);
@@ -50,7 +58,6 @@ void setAddresses(){
 	PHAUX_ADDRESS.sin_port = htons(3074);
 	PHAUX_ADDRESS.sin_addr.s_addr = inet_addr("192.168.2.1");
 }
-
 
 void send_datagram(int socket, char *buf, size_t recv_len, struct sockaddr* to, int slen){
 	int send_to = sendto(socket, buf, recv_len, 0, to, slen);
@@ -96,6 +103,12 @@ void *udp_listener_thread(void *arg){
 			continue;
 		}
 		printf("Thread #%d Received: \"%X\"\n\tFrom: %s:%d\n", t_data->thread_id, buf, inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
+		
+		// TODO: Remove this
+		print_buffer_with_recv_len(buf, recv_len);
+		//
+		
+		printf("Recv_len = %d", recv_len);
 		// Make sure we dont get stuck in a loop
 		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1") == 0 && t_data->thread_id == 3){
 			printf("Thread #%d: Preventing Infinite Loop, Sending it directly to the Xbox\n", t_data->thread_id);
