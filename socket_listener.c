@@ -180,11 +180,11 @@ int main(int argc, char *argv[]){
 	create_udp_socket(&phaux_address_socket, "192.168.2.1", 3074);
 	create_udp_socket(&uPnP_socket, "192.168.2.1", 1900);
 
-	// Establish Communications with Hubserver
-	setSocketToCommunicateWithHubServer(&wifi_facing_8080_socket);
-
 	// Set Sendto_Addresses
 	setAddresses();
+
+	// Establish Communications with Hubserver
+	setSocketToCommunicateWithHubServer(&wifi_facing_8080_socket);
 
 	// Create threads for the sockets we just made
 	struct thread_data t_data[NUM_THREADS];
