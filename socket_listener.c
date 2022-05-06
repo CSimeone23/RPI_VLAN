@@ -34,9 +34,9 @@ struct thread_data {
 };
 
 void print_buffer_with_recv_len(char *buf, int recv_len){
-	printf("\n\"");
+	printf("\n\"|");
 	for(int i=0; i<recv_len; i++){
-		printf("%c", buf[i]);
+		printf("%d|", buf[i]);
 	}
 	printf("\"\n");
 }
