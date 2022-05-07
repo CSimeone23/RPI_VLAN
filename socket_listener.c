@@ -60,7 +60,12 @@ void setAddresses(){
 }
 
 void send_datagram(int socket, char *buf, size_t recv_len, struct sockaddr* to, int slen){
-	int send_to = sendto(socket, buf, recv_len, 0, to, slen);
+	// Converting buffer to different datatypes to ensure data stays intact
+	int *payload = malloc(recv_len*sizeof(int));
+	for(int i=0; i<recv_len; i++){
+		payload[i] = (int) buf[i];
+	}
+	int send_to = sendto(socket, payload, recv_len, 0, to, slen);
 	if(send_to == -1){
 		handle_error("sendto");
 	}
