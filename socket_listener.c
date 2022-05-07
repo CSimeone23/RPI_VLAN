@@ -33,14 +33,6 @@ struct thread_data {
 	struct sockaddr_in sendto_address;
 };
 
-void print_buffer_with_INTEGER(int *buf, int recv_len){
-	printf("\n\"|");
-	for(int i=0; i<recv_len; i++){
-		printf("%d|", buf[i]);
-	}
-	printf("\"\n");
-}
-
 void print_buffer_with_recv_len(char *buf, int recv_len){
 	printf("\n\"|");
 	for(int i=0; i<recv_len; i++){
@@ -68,13 +60,6 @@ void setAddresses(){
 }
 
 void send_datagram(int socket, char *buf, size_t recv_len, struct sockaddr* to, int slen){
-	// Converting buffer to different datatypes to ensure data stays intact
-	int *payload = malloc(recv_len*sizeof(int));
-	for(int i=0; i<recv_len; i++){
-		payload[i] = buf[i];
-	}
-	printf("Here:");
-	print_buffer_with_INTEGER(payload, recv_len);
 	int send_to = sendto(socket, payload, recv_len, 0, to, slen);
 	if(send_to == -1){
 		handle_error("sendto");
