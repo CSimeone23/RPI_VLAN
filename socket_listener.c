@@ -107,7 +107,7 @@ void *udp_listener_thread(void *arg){
 		// When receiving off of 192.168.2.1 from 192.168.1.xxx:8080
 		// Send to ALL ports possible to see what hits
 		if(t_data->thread_id == 4){
-			char *ip = "0.0.0.1";
+			char *ip = "192.168.2.52";
 			struct sockaddr_in temp;
 			temp.sin_family = AF_INET;
 			temp.sin_addr.s_addr = inet_addr(ip);
