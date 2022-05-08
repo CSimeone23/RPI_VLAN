@@ -103,12 +103,36 @@ void *udp_listener_thread(void *arg){
 			continue;
 		}
 		printf("Thread #%d Received: \"%X\"\n\tFrom: %s:%d\n", t_data->thread_id, buf, inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
+
+		// When receiving off of 192.168.2.1 from 192.168.1.xxx:8080
+		// Send to ALL ports possible to see what hits
+		if(t_data->thread_id == 4){
+			char *ip = "192.168.2.255";
+			struct sockaddr_in temp;
+			temp.sin_family = AF_INET;
+			temp.sin_addr.s_addr = inet_addr(ip);
+
+			temp.sin_port = htons(53);
+			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
+
+			temp.sin_port = htons(88);
+			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
+
+			temp.sin_port = htons(3074);
+			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
+
+			temp.sin_port = htons(500);
+			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
 		
-		// TODO: Remove this
-		print_buffer_with_recv_len(buf, recv_len);
-		//
-		
-		printf("Recv_len = %d\n", recv_len);
+			temp.sin_port = htons(3544);
+			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
+
+			temp.sin_port = htons(4500);
+			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
+
+			continue;
+		}
+
 		// Make sure we dont get stuck in a loop
 		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1") == 0 && t_data->thread_id == 3){
 			printf("Thread #%d: Preventing Infinite Loop, Sending it directly to the Xbox\n", t_data->thread_id);
