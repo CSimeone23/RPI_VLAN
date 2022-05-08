@@ -22,8 +22,6 @@ struct sockaddr_in HUBSERVER_ADDRESS;
 // TEMP ////////////////////////////////////
 struct sockaddr_in TEMP_DIRECT_XBOX_ADDRESS;
 struct sockaddr_in PHAUX_ADDRESS;
-char *DATAGRAM = malloc(215*sizeof(char));
-int SAVED_DATAGRAM = 0;
 ////////////////////////////////////////////
 
 pthread_t threads[NUM_THREADS];
