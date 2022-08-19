@@ -22,6 +22,7 @@ struct sockaddr_in HUBSERVER_ADDRESS;
 // TEMP ////////////////////////////////////
 struct sockaddr_in TEMP_DIRECT_XBOX_ADDRESS;
 struct sockaddr_in PHAUX_ADDRESS;
+struct sockaddr_in TEST_ADDRESS;
 ////////////////////////////////////////////
 
 pthread_t threads[NUM_THREADS];
@@ -57,6 +58,10 @@ void setAddresses(){
 	PHAUX_ADDRESS.sin_family = AF_INET;
 	PHAUX_ADDRESS.sin_port = htons(3074);
 	PHAUX_ADDRESS.sin_addr.s_addr = inet_addr("192.168.2.1");
+
+	TEST_ADDRESS.sin_family = AF_INET;
+	TEST_ADDRESS.sin_port = htons(3074);
+	TEST_ADDRESS.sin_addr.s_addr = inet_addr("255.255.255.255");
 }
 
 void send_datagram(int socket, char *buf, size_t recv_len, struct sockaddr* to, int slen){
@@ -106,32 +111,32 @@ void *udp_listener_thread(void *arg){
 
 		// When receiving off of 192.168.2.1 from 192.168.1.xxx:8080
 		// Send to ALL ports possible to see what hits
-		if(t_data->thread_id == 4){
-			char *ip = "0.0.0.1";
-			struct sockaddr_in temp;
-			temp.sin_family = AF_INET;
-			temp.sin_addr.s_addr = inet_addr(ip);
+		// if(t_data->thread_id == 4){
+		// 	char *ip = "0.0.0.1";
+		// 	struct sockaddr_in temp;
+		// 	temp.sin_family = AF_INET;
+		// 	temp.sin_addr.s_addr = inet_addr(ip);
 
-			temp.sin_port = htons(53);
-			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
+		// 	temp.sin_port = htons(53);
+		// 	send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
 
-			temp.sin_port = htons(88);
-			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
+		// 	temp.sin_port = htons(88);
+		// 	send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
 
-			temp.sin_port = htons(3074);
-			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
+		// 	temp.sin_port = htons(3074);
+		// 	send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
 
-			temp.sin_port = htons(500);
-			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
+		// 	temp.sin_port = htons(500);
+		// 	send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
 		
-			temp.sin_port = htons(3544);
-			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
+		// 	temp.sin_port = htons(3544);
+		// 	send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
 
-			temp.sin_port = htons(4500);
-			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
+		// 	temp.sin_port = htons(4500);
+		// 	send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
 
-			break;
-		}
+		// 	break;
+		// }
 
 		// Make sure we dont get stuck in a loop
 		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1") == 0 && t_data->thread_id == 3){
@@ -183,7 +188,6 @@ void create_udp_socket(int *udp_socket, char *ipv4_address, int port){
 
 
 int main(int argc, char *argv[]){
-
 	/*
 		Create 3 Sockets:
 			1) Internet facing that handles communication to and from hub-server	[port 8080]
@@ -244,7 +248,7 @@ int main(int argc, char *argv[]){
 	t_data[3].socket = &phaux_address_socket;
 	t_data[3].port_num = 3074;
 	t_data[3].thread_id = 4;
-	t_data[3].sendto_address = XBOX_ADDRESS;
+	t_data[3].sendto_address = TEST_ADDRESS;
 
 	t_data[4].socket = &uPnP_socket;
 	t_data[4].port_num = 1900;
