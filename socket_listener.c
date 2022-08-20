@@ -229,7 +229,7 @@ int main(int argc, char *argv[]){
 
 	// This socket will receive from wifi and send to xbox/broadcast 
 	// This socket will be on the same network as the Xbox so it'll think its another console
-	create_udp_socket(&phaux_address_socket, "0.0.0.1", 3074);
+	create_udp_socket(&phaux_address_socket, "0.0.0.0", 3074);
 	create_udp_socket(&uPnP_socket, "192.168.2.1", 1900);
 
 	// Set Sendto_Addresses
