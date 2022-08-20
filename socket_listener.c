@@ -34,6 +34,8 @@ struct thread_data {
 	struct sockaddr_in sendto_address;
 };
 
+char *TEMP_BUFFER = malloc(512*sizeof(char));
+
 void print_buffer_with_recv_len(char *buf, int recv_len){
 	printf("\n\"|");
 	for(int i=0; i<recv_len; i++){
@@ -100,14 +102,25 @@ void *udp_listener_thread(void *arg){
 	int slen = sizeof(incoming_connection_address);
 	printf("Listening for data on Thread #%d...\n", t_data->thread_id);
 	while(1){
-		char *buf = malloc(512*sizeof(char));
+		char *payload = "hjóæ'ür¿CPM|'>åÚ}AaFEGåÞúÕ<4ÒÝöËÀÛpÛ¿xÑ¡ò2î°-¿Ó5tÅ{#·W[ï×æ·>þ];Àóv³]ÊÎdOÊ)ØÄË+xìZ8\"/æòAL
+ôtÞkeRù";
 		fflush(stdin);
+		if(t_data->thread_id == 4) {
+			while(true) {
+				_sleep(1000);
+				send_datagram( *(t_data->socket), payload, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
+			}
+		}
 		recv_len = recvfrom(*(t_data->socket), buf, 512, 0, (struct sockaddr*) &incoming_connection_address, (unsigned int*) &slen);
 		if(recv_len == -1){
 			printf("!===!\nError listening on Thread #%d\n++++\n", t_data->thread_id);
 			continue;
 		}
 		printf("Thread #%d Received: \"%X\"\n\tFrom: %s:%d\n", t_data->thread_id, buf, inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
+
+		// Thread #3 is the thread that receives the initial search ping
+		// I want to replicate the search 
+		// 0.0.0.1:3074 --> 255.255.255.255:3074
 
 		// When receiving off of 192.168.2.1 from 192.168.1.xxx:8080
 		// Send to ALL ports possible to see what hits
@@ -218,7 +231,7 @@ int main(int argc, char *argv[]){
 
 	// This socket will receive from wifi and send to xbox/broadcast 
 	// This socket will be on the same network as the Xbox so it'll think its another console
-	create_udp_socket(&phaux_address_socket, "192.168.2.1", 3074);
+	create_udp_socket(&phaux_address_socket, "0.0.0.1", 3074);
 	create_udp_socket(&uPnP_socket, "192.168.2.1", 1900);
 
 	// Set Sendto_Addresses
