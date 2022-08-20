@@ -107,8 +107,8 @@ void *udp_listener_thread(void *arg){
 			char *payload2 = "hjóæ'ür¿CPM|'>åÚ}AaFEGåÞúÕ<4ÒÝöËÀÛpÛ¿xÑ¡ò2î°-¿Ó5tÅ{#·W[ï×æ·>þ];Àóv³]ÊÎdOÊ)ØÄË+xìZ8\"/æòALôtÞkeRù";
 			while(1 == 1) {
 				sleep(10);
-				send_datagram( *(t_data->socket), payload1, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
-				send_datagram( *(t_data->socket), payload2, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
+				send_datagram( *(t_data->socket), payload1, 41, (struct sockaddr*) &(t_data->sendto_address), slen);
+				send_datagram( *(t_data->socket), payload2, 129, (struct sockaddr*) &(t_data->sendto_address), slen);
 			}
 		}
 		recv_len = recvfrom(*(t_data->socket), buf, 512, 0, (struct sockaddr*) &incoming_connection_address, (unsigned int*) &slen);
