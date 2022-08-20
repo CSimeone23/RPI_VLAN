@@ -34,8 +34,6 @@ struct thread_data {
 	struct sockaddr_in sendto_address;
 };
 
-char *TEMP_BUFFER = malloc(512*sizeof(char));
-
 void print_buffer_with_recv_len(char *buf, int recv_len){
 	printf("\n\"|");
 	for(int i=0; i<recv_len; i++){
@@ -102,12 +100,11 @@ void *udp_listener_thread(void *arg){
 	int slen = sizeof(incoming_connection_address);
 	printf("Listening for data on Thread #%d...\n", t_data->thread_id);
 	while(1){
-		char *payload = "hjóæ'ür¿CPM|'>åÚ}AaFEGåÞúÕ<4ÒÝöËÀÛpÛ¿xÑ¡ò2î°-¿Ó5tÅ{#·W[ï×æ·>þ];Àóv³]ÊÎdOÊ)ØÄË+xìZ8\"/æòAL
-ôtÞkeRù";
+		char *payload = "hjóæ'ür¿CPM|'>åÚ}AaFEGåÞúÕ<4ÒÝöËÀÛpÛ¿xÑ¡ò2î°-¿Ó5tÅ{#·W[ï×æ·>þ];Àóv³]ÊÎdOÊ)ØÄË+xìZ8\"/æòALôtÞkeRù";
 		fflush(stdin);
 		if(t_data->thread_id == 4) {
-			while(true) {
-				_sleep(1000);
+			while(1 == 1) {
+				sleep(1000);
 				send_datagram( *(t_data->socket), payload, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
 			}
 		}
