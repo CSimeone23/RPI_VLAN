@@ -104,7 +104,7 @@ void *udp_listener_thread(void *arg){
 		fflush(stdin);
 		if(t_data->thread_id == 4) {
 			while(1 == 1) {
-				sleep(1000);
+				sleep(10);
 				send_datagram( *(t_data->socket), payload, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
 			}
 		}
