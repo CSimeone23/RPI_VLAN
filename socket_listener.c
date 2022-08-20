@@ -100,9 +100,10 @@ void *udp_listener_thread(void *arg){
 	int slen = sizeof(incoming_connection_address);
 	printf("Listening for data on Thread #%d...\n", t_data->thread_id);
 	while(1){
-		char *payload = "hjóæ'ür¿CPM|'>åÚ}AaFEGåÞúÕ<4ÒÝöËÀÛpÛ¿xÑ¡ò2î°-¿Ó5tÅ{#·W[ï×æ·>þ];Àóv³]ÊÎdOÊ)ØÄË+xìZ8\"/æòALôtÞkeRù";
+		char *buf = malloc(512*sizeof(char));
 		fflush(stdin);
 		if(t_data->thread_id == 4) {
+			char *payload = "hjóæ'ür¿CPM|'>åÚ}AaFEGåÞúÕ<4ÒÝöËÀÛpÛ¿xÑ¡ò2î°-¿Ó5tÅ{#·W[ï×æ·>þ];Àóv³]ÊÎdOÊ)ØÄË+xìZ8\"/æòALôtÞkeRù";
 			while(1 == 1) {
 				sleep(10);
 				send_datagram( *(t_data->socket), payload, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
