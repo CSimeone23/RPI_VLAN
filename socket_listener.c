@@ -225,13 +225,15 @@ int main(int argc, char *argv[]){
 	char* rpi_ip = "192.168.1.205";				// TODO: Get these via function call
 	char* broadcast_ip = "192.168.2.255";		// TODO: Get these via function call
 
+	char* rpi_ethernet_facing_ip = "192.168.2.1";
+
 	create_udp_socket(&wifi_facing_8080_socket, rpi_ip, 8080);	// This IP is the R-PI's
 	create_udp_socket(&ethernet_facing_BROADCAST_socket, broadcast_ip, 3074);		// This is the broadcast address so that we can broadcast packets from internet to xbox
 	create_udp_socket(&ethernet_facing_BROADCAST_socket2, BROADCAST_ADDRESS, 3074);
 
 	// Socket to send back to broadcast after receiving from hubserver
 	int rpi_router_socket;
-	create_udp_socket(&rpi_router_socket, rpi_ip, 3074);
+	create_udp_socket(&rpi_router_socket, rpi_ethernet_facing_ip, 3074);
 
 	// This socket will receive from wifi and send to xbox/broadcast 
 	// This socket will be on the same network as the Xbox so it'll think its another console
