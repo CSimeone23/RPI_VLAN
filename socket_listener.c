@@ -229,6 +229,10 @@ int main(int argc, char *argv[]){
 	create_udp_socket(&ethernet_facing_BROADCAST_socket, broadcast_ip, 3074);		// This is the broadcast address so that we can broadcast packets from internet to xbox
 	create_udp_socket(&ethernet_facing_BROADCAST_socket2, BROADCAST_ADDRESS, 3074);
 
+	// Socket to send back to broadcast after receiving from hubserver
+	int rpi_router_socket;
+	create_udp_socket(&rpi_router_socket, rpi_ip, 3074);
+
 	// This socket will receive from wifi and send to xbox/broadcast 
 	// This socket will be on the same network as the Xbox so it'll think its another console
 	//create_udp_socket(&phaux_address_socket, "0.0.0.0", 3074);
@@ -241,12 +245,12 @@ int main(int argc, char *argv[]){
 	setSocketToCommunicateWithHubServer(&wifi_facing_8080_socket);
 
 	// Create threads for the sockets we just made
-	struct thread_data t_data[NUM_THREADS - 2];
+	struct thread_data t_data[NUM_THREADS - 1];
 
 	t_data[0].socket = &wifi_facing_8080_socket;
 	t_data[0].port_num = 8080;
 	t_data[0].thread_id = 1;
-	t_data[0].sendto_address = PHAUX_ADDRESS;
+	t_data[0].sendto_address = PHAUX_ADDRESS; // RPI (router) address
 
 	t_data[1].socket = &ethernet_facing_BROADCAST_socket;
 	t_data[1].port_num = 3074;
@@ -257,6 +261,11 @@ int main(int argc, char *argv[]){
 	t_data[2].port_num = 3074;
 	t_data[2].thread_id = 3;
 	t_data[2].sendto_address = HUBSERVER_ADDRESS;
+
+	t_data[3].socket = &rpi_router_socket;
+	t_data[3].port_num = 3074;
+	t_data[3].thread_id = 4;
+	t_data[3].sendto_address = BROADCAST_ADDRESS;
 
 	// t_data[3].socket = &phaux_address_socket;
 	// t_data[3].port_num = 3074;
@@ -271,6 +280,8 @@ int main(int argc, char *argv[]){
 	create_udp_listener_thread(&wifi_facing_8080_socket, &t_data[0]);
 	create_udp_listener_thread(&ethernet_facing_BROADCAST_socket, &t_data[1]);
 	create_udp_listener_thread(&ethernet_facing_BROADCAST_socket2, &t_data[2]);
+	
+	create_udp_listener_thread(&rpi_router_socket, &t_data[3]);
 
 	//create_udp_listener_thread(&phaux_address_socket, &t_data[3]);
 	//create_udp_listener_thread(&uPnP_socket, &t_data[4]);
