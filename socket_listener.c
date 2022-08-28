@@ -102,15 +102,15 @@ void *udp_listener_thread(void *arg){
 	while(1){
 		char *buf = malloc(512*sizeof(char));
 		fflush(stdin);
-		if(t_data->thread_id == 4) {
-			char *payload1 = "h©Rw/ÁìÌ?ÌáALçüs¡å¿ã¿öº";
-			char *payload2 = "hjóæ'ür¿CPM|'>åÚ}AaFEGåÞúÕ<4ÒÝöËÀÛpÛ¿xÑ¡ò2î°-¿Ó5tÅ{#·W[ï×æ·>þ];Àóv³]ÊÎdOÊ)ØÄË+xìZ8\"/æòALôtÞkeRù";
-			while(1 == 1) {
-				sleep(10);
-				send_datagram( *(t_data->socket), payload1, 41, (struct sockaddr*) &(t_data->sendto_address), slen);
-				send_datagram( *(t_data->socket), payload2, 129, (struct sockaddr*) &(t_data->sendto_address), slen);
-			}
-		}
+		// if(t_data->thread_id == 4) {
+		// 	char *payload1 = "h©Rw/ÁìÌ?ÌáALçüs¡å¿ã¿öº";
+		// 	char *payload2 = "hjóæ'ür¿CPM|'>åÚ}AaFEGåÞúÕ<4ÒÝöËÀÛpÛ¿xÑ¡ò2î°-¿Ó5tÅ{#·W[ï×æ·>þ];Àóv³]ÊÎdOÊ)ØÄË+xìZ8\"/æòALôtÞkeRù";
+		// 	while(1 == 1) {
+		// 		sleep(10);
+		// 		send_datagram( *(t_data->socket), payload1, 41, (struct sockaddr*) &(t_data->sendto_address), slen);
+		// 		send_datagram( *(t_data->socket), payload2, 129, (struct sockaddr*) &(t_data->sendto_address), slen);
+		// 	}
+		// }
 		recv_len = recvfrom(*(t_data->socket), buf, 512, 0, (struct sockaddr*) &incoming_connection_address, (unsigned int*) &slen);
 		if(recv_len == -1){
 			printf("!===!\nError listening on Thread #%d\n++++\n", t_data->thread_id);
@@ -152,12 +152,12 @@ void *udp_listener_thread(void *arg){
 		// }
 
 		// Make sure we dont get stuck in a loop
-		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1") == 0 && t_data->thread_id == 3){
-			printf("Thread #%d: Preventing Infinite Loop, Sending it directly to the Xbox\n", t_data->thread_id);
-			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &TEMP_DIRECT_XBOX_ADDRESS, slen);
-			free(buf);
-			continue;
-		}
+		// if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1") == 0 && t_data->thread_id == 3){
+		// 	printf("Thread #%d: Preventing Infinite Loop, Sending it directly to the Xbox\n", t_data->thread_id);
+		// 	send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &TEMP_DIRECT_XBOX_ADDRESS, slen);
+		// 	free(buf);
+		// 	continue;
+		// }
 		printf("Thread #%d: Sending data to %s:%d\n", t_data->thread_id, inet_ntoa(t_data->sendto_address.sin_addr), ntohs(t_data->sendto_address.sin_port));
 		send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
 		free(buf);
@@ -219,8 +219,8 @@ int main(int argc, char *argv[]){
 	int ethernet_facing_BROADCAST_socket;
 	int ethernet_facing_BROADCAST_socket2;
 
-	int phaux_address_socket;
-	int uPnP_socket;
+	// int phaux_address_socket;
+	// int uPnP_socket;
 
 	char* rpi_ip = "192.168.1.205";				// TODO: Get these via function call
 	char* broadcast_ip = "192.168.2.255";		// TODO: Get these via function call
@@ -231,8 +231,8 @@ int main(int argc, char *argv[]){
 
 	// This socket will receive from wifi and send to xbox/broadcast 
 	// This socket will be on the same network as the Xbox so it'll think its another console
-	create_udp_socket(&phaux_address_socket, "0.0.0.0", 3074);
-	create_udp_socket(&uPnP_socket, "192.168.2.1", 1900);
+	//create_udp_socket(&phaux_address_socket, "0.0.0.0", 3074);
+	// create_udp_socket(&uPnP_socket, "192.168.2.1", 1900);
 
 	// Set Sendto_Addresses
 	setAddresses();
@@ -241,7 +241,7 @@ int main(int argc, char *argv[]){
 	setSocketToCommunicateWithHubServer(&wifi_facing_8080_socket);
 
 	// Create threads for the sockets we just made
-	struct thread_data t_data[NUM_THREADS];
+	struct thread_data t_data[NUM_THREADS - 2];
 
 	t_data[0].socket = &wifi_facing_8080_socket;
 	t_data[0].port_num = 8080;
@@ -258,22 +258,22 @@ int main(int argc, char *argv[]){
 	t_data[2].thread_id = 3;
 	t_data[2].sendto_address = HUBSERVER_ADDRESS;
 
-	t_data[3].socket = &phaux_address_socket;
-	t_data[3].port_num = 3074;
-	t_data[3].thread_id = 4;
-	t_data[3].sendto_address = TEST_ADDRESS;
+	// t_data[3].socket = &phaux_address_socket;
+	// t_data[3].port_num = 3074;
+	// t_data[3].thread_id = 4;
+	// t_data[3].sendto_address = TEST_ADDRESS;
 
-	t_data[4].socket = &uPnP_socket;
-	t_data[4].port_num = 1900;
-	t_data[4].thread_id = 5;
-	t_data[4].sendto_address = HUBSERVER_ADDRESS;
+	// t_data[4].socket = &uPnP_socket;
+	// t_data[4].port_num = 1900;
+	// t_data[4].thread_id = 5;
+	// t_data[4].sendto_address = HUBSERVER_ADDRESS;
 
 	create_udp_listener_thread(&wifi_facing_8080_socket, &t_data[0]);
 	create_udp_listener_thread(&ethernet_facing_BROADCAST_socket, &t_data[1]);
 	create_udp_listener_thread(&ethernet_facing_BROADCAST_socket2, &t_data[2]);
 
-	create_udp_listener_thread(&phaux_address_socket, &t_data[3]);
-	create_udp_listener_thread(&uPnP_socket, &t_data[4]);
+	//create_udp_listener_thread(&phaux_address_socket, &t_data[3]);
+	//create_udp_listener_thread(&uPnP_socket, &t_data[4]);
 
 
 	// Below code will hopefully never run so Im just leaving as is just in case
