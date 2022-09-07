@@ -7,9 +7,7 @@
 #include <errno.h>
 #include <pthread.h>
 #include <unistd.h>
-
- #include <fcntl.h>
-
+#include <fcntl.h>
 #include "error_handlers.h"
 
 #define BROADCAST_IP "255.255.255.255"
@@ -43,27 +41,7 @@ void print_buffer_with_recv_len(char *buf, int recv_len){
 	printf("\"\n");
 }
 
-void setAddresses(){
-	// TEMP_DIRECT_XBOX_ADDRESS.sin_family = AF_INET;
-	// TEMP_DIRECT_XBOX_ADDRESS.sin_port = htons(3074);
-	// TEMP_DIRECT_XBOX_ADDRESS.sin_addr.s_addr = inet_addr("192.168.2.52");
-
-	// XBOX_ADDRESS.sin_family = AF_INET;
-	// XBOX_ADDRESS.sin_port = htons(3074);
-	// XBOX_ADDRESS.sin_addr.s_addr = inet_addr(BROADCAST_ADDRESS);
-	
-	// HUBSERVER_ADDRESS.sin_family = AF_INET;
-	// HUBSERVER_ADDRESS.sin_port = htons(25565);
-	// HUBSERVER_ADDRESS.sin_addr.s_addr = inet_addr("192.168.1.190");
-
-	// PHAUX_ADDRESS.sin_family = AF_INET;
-	// PHAUX_ADDRESS.sin_port = htons(3074);
-	// PHAUX_ADDRESS.sin_addr.s_addr = inet_addr("192.168.2.1");
-
-	// TEST_ADDRESS.sin_family = AF_INET;
-	// TEST_ADDRESS.sin_port = htons(3074);
-	// TEST_ADDRESS.sin_addr.s_addr = inet_addr("255.255.255.255");
-}
+void setAddresses(){}
 
 void send_datagram(int socket, char *buf, size_t recv_len, struct sockaddr* to, int slen){
 	int send_to = sendto(socket, buf, recv_len, 0, to, slen);
