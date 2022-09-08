@@ -269,7 +269,7 @@ int main(int argc, char *argv[]){
 	t_data[2].port_num = 3074;
 	t_data[2].thread_id = 3;
 	t_data[2].sendto_address = ETHERNET_FACED_ADDRESS;
-	t_data[2].sendto_address2 = ((void *)0); // null
+	//t_data[2].sendto_address2 = ((void *)0); // null
 
 	create_udp_listener_thread(t_data);
 
