@@ -151,6 +151,10 @@ void *ethernet_broadcast_listener_thread(void *arg) {
 			continue;
 		}
 		printf("Thread #%d Received: \"%X\"\n\tFrom: %s:%d\n", t_data->thread_id, buf, inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
+		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1")) {
+			printf("Broadcast socket received data from ethernet socket, ignoring...\n");
+			continue;
+		}
 		printf("Thread #%d, sending data to ETHERNET FACING SOCKET\n", t_data->thread_id);
 		send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address2), slen);
 		free(buf);
@@ -217,14 +221,14 @@ int main(int argc, char *argv[]){
 	*/
 	char *rpi_ip_wifi = "192.168.1.205";
 	char *rpi_ip_ethernet = "192.168.2.1";
-	char *ethernet_broadcast_ip = "192.168.2.255";
+	//char *ethernet_broadcast_ip = "192.168.2.255";
 	int wifi_faced_udp_socket;
 	int ethernet_faced_udp_socket;
 	int ethernet_broadcast_socket;
 
 	create_udp_socket(&wifi_faced_udp_socket, rpi_ip_wifi, 8080);
 	create_udp_socket(&ethernet_faced_udp_socket, rpi_ip_ethernet, 3074);
-	create_udp_socket(&ethernet_broadcast_socket, ethernet_broadcast_ip, 3074);
+	create_udp_socket(&ethernet_broadcast_socket, BROADCAST_IP, 3074);
 
 	//setAddresses();
 	HUBSERVER_ADDRESS.sin_family = AF_INET;
