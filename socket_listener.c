@@ -126,7 +126,7 @@ void *ethernet_facing_udp_listener_thread(void *arg) {
 			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address2), slen);
 		} else if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.1.205")) {
 			printf("Thread #%d, sending data to BROADCAST ADDRESS\n", t_data->thread_id);
-			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address1), slen);
+			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
 		} else {
 			printf("Thread #%d, [ERROR]??I don't know where to send this\n");
 		}
@@ -312,7 +312,7 @@ int main(int argc, char *argv[]){
 	t_data[1].sendto_address = BROADCAST_ADDRESS;
 	t_data[1].sendto_address2 = WIFI_FACED_ADDRESS;
 
-	create_udp_listener_thread(&t_data);
+	create_udp_listener_thread(t_data);
 
 
 	// create_udp_listener_thread(&wifi_facing_8080_socket, &t_data[0]);
