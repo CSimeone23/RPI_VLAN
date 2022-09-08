@@ -41,8 +41,6 @@ void print_buffer_with_recv_len(char *buf, int recv_len){
 	printf("\"\n");
 }
 
-void setAddresses(){}
-
 void send_datagram(int socket, char *buf, size_t recv_len, struct sockaddr* to, int slen){
 	int send_to = sendto(socket, buf, recv_len, 0, to, slen);
 	if(send_to == -1){
@@ -80,7 +78,7 @@ void *wifi_facing_udp_listener_thread(void *arg){
 	struct sockaddr_in incoming_connection_address;
 	int recv_len;
 	int slen = sizeof(incoming_connection_address);
-	printf("Listening for data on Thread #%d...\n", t_data->thread_id);
+	printf("Listening for data on Wifi Socket [Thread #%d]...\n", t_data->thread_id);
 	while(1) {
 		char *buf = malloc(512*sizeof(char));
 		fflush(stdin);
@@ -106,11 +104,15 @@ void *wifi_facing_udp_listener_thread(void *arg){
 	}
 }
 
+/**
+ * Listens on Ethernet facing socket
+ */
 void *ethernet_facing_udp_listener_thread(void *arg) {
 	struct thread_data *t_data = arg;
 	struct sockaddr_in incoming_connection_address;
 	int recv_len;
 	int slen = sizeof(incoming_connection_address);
+	printf("Listening for data on Ethernet Socket [Thread #%d]...\n", t_data->thread_id);
 	while(1) {
 		char *buf = malloc(512*sizeof(char));
 		fflush(stdin);
@@ -134,83 +136,6 @@ void *ethernet_facing_udp_listener_thread(void *arg) {
 	}
 }
 
-void *udp_listener_thread(void *arg){
-	struct thread_data *t_data = arg;
-	struct sockaddr_in incoming_connection_address;
-	int recv_len;
-	int slen = sizeof(incoming_connection_address);
-	printf("Listening for data on Thread #%d...\n", t_data->thread_id);
-	while(1){
-		char *buf = malloc(512*sizeof(char));
-		fflush(stdin);
-		// if(t_data->thread_id == 4) {
-		// 	char *payload1 = "h©Rw/ÁìÌ?ÌáALçüs¡å¿ã¿öº";
-		// 	char *payload2 = "hjóæ'ür¿CPM|'>åÚ}AaFEGåÞúÕ<4ÒÝöËÀÛpÛ¿xÑ¡ò2î°-¿Ó5tÅ{#·W[ï×æ·>þ];Àóv³]ÊÎdOÊ)ØÄË+xìZ8\"/æòALôtÞkeRù";
-		// 	while(1 == 1) {
-		// 		sleep(10);
-		// 		send_datagram( *(t_data->socket), payload1, 41, (struct sockaddr*) &(t_data->sendto_address), slen);
-		// 		send_datagram( *(t_data->socket), payload2, 129, (struct sockaddr*) &(t_data->sendto_address), slen);
-		// 	}
-		// }
-		recv_len = recvfrom(*(t_data->socket), buf, 512, 0, (struct sockaddr*) &incoming_connection_address, (unsigned int*) &slen);
-		if(recv_len == -1){
-			printf("!===!\nError listening on Thread #%d\n++++\n", t_data->thread_id);
-			continue;
-		}
-		printf("Thread #%d Received: \"%X\"\n\tFrom: %s:%d\n", t_data->thread_id, buf, inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
-
-		// Thread #3 is the thread that receives the initial search ping
-		// I want to replicate the search 
-		// 0.0.0.1:3074 --> 255.255.255.255:3074
-
-		// When receiving off of 192.168.2.1 from 192.168.1.xxx:8080
-		// Send to ALL ports possible to see what hits
-		// if(t_data->thread_id == 4){
-		// 	char *ip = "0.0.0.1";
-		// 	struct sockaddr_in temp;
-		// 	temp.sin_family = AF_INET;
-		// 	temp.sin_addr.s_addr = inet_addr(ip);
-
-		// 	temp.sin_port = htons(53);
-		// 	send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
-
-		// 	temp.sin_port = htons(88);
-		// 	send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
-
-		// 	temp.sin_port = htons(3074);
-		// 	send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
-
-		// 	temp.sin_port = htons(500);
-		// 	send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
-		
-		// 	temp.sin_port = htons(3544);
-		// 	send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
-
-		// 	temp.sin_port = htons(4500);
-		// 	send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &temp, slen);
-
-		// 	break;
-		// }
-
-		// Make sure we dont get stuck in a loop
-		// if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1") == 0 && t_data->thread_id == 3){
-		// 	printf("Thread #%d: Preventing Infinite Loop, Sending it directly to the Xbox\n", t_data->thread_id);
-		// 	send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &TEMP_DIRECT_XBOX_ADDRESS, slen);
-		// 	free(buf);
-		// 	continue;
-		// }
-		printf("Thread #%d: Sending data to %s:%d\n", t_data->thread_id, inet_ntoa(t_data->sendto_address.sin_addr), ntohs(t_data->sendto_address.sin_port));
-		send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
-		free(buf);
-	}
-}
-
-// void create_udp_listener_thread(int *socket, struct thread_data *t_data){
-// 	if(pthread_create(&threads[THREAD_ID - 1], NULL, udp_listener_thread, t_data) != 0){
-// 		printf("!==!\nError creating Thread #%d\n++++\n", t_data->thread_id);
-// 		exit(EXIT_FAILURE);
-// 	}
-// }
 void create_udp_listener_thread(struct thread_data *t_data){
 	if(pthread_create(&threads[0], NULL, wifi_facing_udp_listener_thread, &t_data[0]) != 0){
 		printf("!==!\nError creating Thread #%d\n++++\n", t_data->thread_id);
