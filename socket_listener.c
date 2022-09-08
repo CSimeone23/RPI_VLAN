@@ -156,7 +156,7 @@ void *ethernet_broadcast_listener_thread(void *arg) {
 			continue;
 		}
 		printf("Thread #%d, sending data to ETHERNET FACING SOCKET\n", t_data->thread_id);
-		send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address2), slen);
+		send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
 		free(buf);
 	}
 }
