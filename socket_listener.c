@@ -91,10 +91,10 @@ void *wifi_facing_udp_listener_thread(void *arg){
 	
 		// Check if incomming address is hubserver
 		// If so, send data to ethernet socket
-		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.1.190")) {
+		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.1.190") == 0) {
 			printf("Thread #%d, sending data to ETHERNET FACING SOCKET\n", t_data->thread_id);
 			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address2), slen);
-		} else if (strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1")) {
+		} else if (strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1") == 0) {
 			printf("Thread #%d, sending data to HUBSERVER\n", t_data->thread_id);
 			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
 		} else {
@@ -123,10 +123,10 @@ void *ethernet_facing_udp_listener_thread(void *arg) {
 		}
 		printf("Thread #%d Received: \"%X\"\n\tFrom: %s:%d\n", t_data->thread_id, buf, inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
 
-		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), BROADCAST_IP) || strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.255")) {
+		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), BROADCAST_IP) == 0 || strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.255") == 0) {
 			printf("Thread #%d, sending data to WIFI FACING SOCKET\n", t_data->thread_id);
 			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address2), slen);
-		} else if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.1.205")) {
+		} else if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.1.205") == 0) {
 			printf("Thread #%d, sending data to BROADCAST ADDRESS\n", t_data->thread_id);
 			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
 		} else {
@@ -151,7 +151,7 @@ void *ethernet_broadcast_listener_thread(void *arg) {
 			continue;
 		}
 		printf("Thread #%d Received: \"%X\"\n\tFrom: %s:%d\n", t_data->thread_id, buf, inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
-		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1")) {
+		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1") == 0) {
 			printf("Broadcast socket received data from ethernet socket, ignoring...\n");
 			continue;
 		}
