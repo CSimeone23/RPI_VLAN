@@ -166,7 +166,7 @@ void create_udp_listener_thread(struct thread_data *t_data){
 		printf("!==!\nError creating Thread #%d\n++++\n", t_data->thread_id);
 		exit(EXIT_FAILURE);
 	}
-	if(pthread_create(&threads[2], NULL, ethernet_facing_udp_listener_thread, &t_data[1]) != 0){
+	if(pthread_create(&threads[2], NULL, ethernet_broadcast_listener_thread, &t_data[1]) != 0){
 		printf("!==!\nError creating Thread #%d\n++++\n", t_data->thread_id);
 		exit(EXIT_FAILURE);
 	}
