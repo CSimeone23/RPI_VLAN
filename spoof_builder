@@ -1,2 +1,0 @@
-#!/bin/sh
-gcc mac_spoofer.c -o mac_spoofer.exe
