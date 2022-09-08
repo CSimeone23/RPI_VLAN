@@ -123,14 +123,16 @@ void *ethernet_facing_udp_listener_thread(void *arg) {
 		}
 		printf("Thread #%d Received: \"%X\"\n\tFrom: %s:%d\n", t_data->thread_id, buf, inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
 
-		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), BROADCAST_IP) == 0 || strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.255") == 0) {
+		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), BROADCAST_IP) == 0 
+			|| strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.255") == 0
+			|| strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1") == 0) {
 			printf("Thread #%d, sending data to WIFI FACING SOCKET\n", t_data->thread_id);
 			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address2), slen);
 		} else if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.1.205") == 0) {
 			printf("Thread #%d, sending data to BROADCAST ADDRESS\n", t_data->thread_id);
 			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
 		} else {
-			printf("Thread #%d, [ERROR]??I don't know where to send this\n");
+			printf("[ERROR] Thread #3: I don't know where to send this\n");
 		}
 		free(buf);
 	}
