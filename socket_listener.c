@@ -80,27 +80,27 @@ void *wifi_facing_udp_listener_thread(void *arg){
 	int slen = sizeof(incoming_connection_address);
 	printf("Listening for data on Wifi Socket [Thread #%d]...\n", t_data->thread_id);
 	while(1) {
-		char *buf = malloc(512*sizeof(char));
-		fflush(stdin);
-		recv_len = recvfrom(*(t_data->socket), buf, 512, 0, (struct sockaddr*) &incoming_connection_address, (unsigned int*) &slen);
-		if(recv_len == -1) {
-			printf("!===!\nError listening on Thread #%d\n!===!\n", t_data->thread_id);
-			continue;
-		}
-		printf("Thread #%d Received: \"%X\"\n\tFrom: %s:%d\n", t_data->thread_id, buf, inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
+		// char *buf = malloc(512*sizeof(char));
+		// fflush(stdin);
+		// recv_len = recvfrom(*(t_data->socket), buf, 512, 0, (struct sockaddr*) &incoming_connection_address, (unsigned int*) &slen);
+		// if(recv_len == -1) {
+		// 	printf("!===!\nError listening on Thread #%d\n!===!\n", t_data->thread_id);
+		// 	continue;
+		// }
+		// printf("Thread #%d Received: \"%X\"\n\tFrom: %s:%d\n", t_data->thread_id, buf, inet_ntoa(incoming_connection_address.sin_addr), ntohs(incoming_connection_address.sin_port));
 	
-		// Check if incomming address is hubserver
-		// If so, send data to ethernet socket
-		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.1.190") == 0) {
-			printf("Thread #%d, sending data to ETHERNET FACING SOCKET\n", t_data->thread_id);
-			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address2), slen);
-		} else if (strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1") == 0) {
-			printf("Thread #%d, sending data to HUBSERVER\n", t_data->thread_id);
-			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
-		} else {
-			printf("Thread #%d, [ERROR]??I don't know where to send this\n");
-		}
-		free(buf);
+		// // Check if incomming address is hubserver
+		// // If so, send data to ethernet socket
+		// if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.1.190") == 0) {
+		// 	printf("Thread #%d, sending data to ETHERNET FACING SOCKET\n", t_data->thread_id);
+		// 	send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address2), slen);
+		// } else if (strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1") == 0) {
+		// 	printf("Thread #%d, sending data to HUBSERVER\n", t_data->thread_id);
+		// 	send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address), slen);
+		// } else {
+		// 	printf("Thread #%d, [ERROR]??I don't know where to send this\n");
+		// }
+		// free(buf);
 	}
 }
 
@@ -126,7 +126,7 @@ void *ethernet_facing_udp_listener_thread(void *arg) {
 		if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), BROADCAST_IP) == 0 
 			|| strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.255") == 0
 			|| strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.2.1") == 0) {
-			printf("Thread #%d, sending data to WIFI FACING SOCKET\n", t_data->thread_id);
+			printf("Thread #%d, sending data to HUBSERVER\n", t_data->thread_id);
 			send_datagram( *(t_data->socket), buf, recv_len, (struct sockaddr*) &(t_data->sendto_address2), slen);
 		} else if(strcmp(inet_ntoa(incoming_connection_address.sin_addr), "192.168.1.205") == 0) {
 			printf("Thread #%d, sending data to BROADCAST ADDRESS\n", t_data->thread_id);
@@ -254,7 +254,8 @@ int main(int argc, char *argv[]){
 	WIFI_FACED_ADDRESS.sin_addr.s_addr = inet_addr(rpi_ip_wifi);
 
 	// Establish Communications with Hubserver
-	setSocketToCommunicateWithHubServer(&wifi_faced_udp_socket);
+	//setSocketToCommunicateWithHubServer(&wifi_faced_udp_socket);
+	setSocketToCommunicateWithHubServer(&ethernet_faced_udp_socket);
 
 	// Create threads for the sockets we just made
 	struct thread_data t_data[NUM_THREADS - 1];
