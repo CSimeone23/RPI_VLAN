@@ -269,7 +269,7 @@ int main(int argc, char *argv[]){
 	t_data[1].port_num = 3074;
 	t_data[1].thread_id = 2;
 	t_data[1].sendto_address = BROADCAST_ADDRESS;
-	t_data[1].sendto_address2 = WIFI_FACED_ADDRESS;
+	t_data[1].sendto_address2 = HUBSERVER_ADDRESS;
 
 	t_data[2].socket = &ethernet_broadcast_socket;
 	t_data[2].port_num = 3074;
