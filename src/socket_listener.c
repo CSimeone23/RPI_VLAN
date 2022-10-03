@@ -8,7 +8,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include "error_handlers.h"
+#include "handlers/error_handlers.h"
 
 #define BROADCAST_IP "255.255.255.255"
 #define NUM_THREADS 3
