@@ -51,7 +51,7 @@ int main()
 		//Now process the packet
 		ProcessPacket(buffer , data_size);
 	}
-	close(sock_raw);
+	//pclose(sock_raw);
 	printf("Finished");
 	return 0;
 }
