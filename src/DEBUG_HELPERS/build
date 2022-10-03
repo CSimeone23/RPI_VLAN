@@ -1,0 +1,2 @@
+#!/bin/bash
+gcc packet_sniffer.c -o run_sniffer.exe
