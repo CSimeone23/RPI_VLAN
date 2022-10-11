@@ -23,13 +23,15 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  printf("Starting...\n");
-  raw_socket = socket(AF_INET, SOCK_DGRAM, 0);
+  printf("Starting...\n"); 
+  raw_socket = socket(AF_INET, SOCK_RAW, 0);
   if(raw_socket < 0) {
     printf("Error Creating socket\n");
     exit(EXIT_FAILURE);
   }
 
+  printf("Created Socket!\n");
+  printf("Listening...\n");
   while(1) {
     saddr_size = sizeof saddr;
     data_size = recvfrom(raw_socket, buffer, MAX_BUFFER_SIZE, 0, &saddr, &saddr_size);
