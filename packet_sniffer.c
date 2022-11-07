@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
   }
 
   printf("Starting...\n"); 
-  raw_socket = socket(AF_INET, SOCK_RAW, htons(ETH_P_ALL));
+  raw_socket = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
   if(raw_socket < 0) {
     printf("Make sure you run this as Root User\n");
     printf("Error Creating socket, error_code: %d\n", errno);
