@@ -5,6 +5,8 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <net/ethernet.h>
+#include <linux/if_packet.h>
 
 #define MAX_BUFFER_SIZE 65536
 FILE *logfile;
@@ -24,7 +26,7 @@ int main(int argc, char *argv[]) {
   }
 
   printf("Starting...\n"); 
-  raw_socket = socket(AF_INET, SOCK_RAW, IPPROTO_TCP);
+  raw_socket = socket(AF_INET, SOCK_RAW, htons(ETH_P_ALL));
   if(raw_socket < 0) {
     printf("Make sure you run this as Root User\n");
     printf("Error Creating socket, error_code: %d\n", errno);
