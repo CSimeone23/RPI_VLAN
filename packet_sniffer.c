@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
   }
 
   printf("Starting...\n"); 
-  raw_socket = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
+  raw_socket = socket(AF_INET, SOCK_RAW, IPPROTO_TCP);
   if(raw_socket < 0) {
     printf("Error Creating socket, error_code: %d\n", errno);
     exit(EXIT_FAILURE);
