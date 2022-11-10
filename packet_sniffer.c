@@ -13,7 +13,7 @@ FILE *logfile;
 int raw_socket;
 
 void decimalToBinary(int num) {  
-    printf("num = %d\n", num); 
+    printf("num = %d ", num); 
     if (num == 0) {
         printf("0");
         return;
@@ -31,7 +31,7 @@ void decimalToBinary(int num) {
    // Printing array in reverse order.
    for (int j = i-1; j >= 0; j--)
       printf("%d", binaryNum[j]);
-  printf(" ");
+  printf("\n");
 }
 
 int main(int argc, char *argv[]) {
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
   printf("Created Socket!\n");
 
   printf("Listening...\n");
-  int maxCount = 20;
+  int maxCount = 1;
   int currentCount = 0;
   while(currentCount < maxCount) {
     saddr_size = sizeof saddr;
