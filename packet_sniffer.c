@@ -69,6 +69,7 @@ int main(int argc, char *argv[]) {
     printf("Size = %d, Buffer = %s\n", data_size, buffer);
 
     for(int i=0; i<data_size; i++) {
+      printf("Byte %d:\n", i);
       decimalToBinary(buffer[i]);
     }
 
