@@ -12,7 +12,8 @@
 FILE *logfile;
 int raw_socket;
 
-void decimalToBinary(int num) {   
+void decimalToBinary(int num) {  
+    printf("num = %d\n", num); 
     if (num == 0) {
         printf("0");
         return;
@@ -29,7 +30,7 @@ void decimalToBinary(int num) {
    
    // Printing array in reverse order.
    for (int j = i-1; j >= 0; j--)
-      printf("%d", binaryNum[j]);
+      printf("%d\n", binaryNum[j]);
 }
 
 int main(int argc, char *argv[]) {
