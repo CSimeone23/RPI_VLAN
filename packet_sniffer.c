@@ -30,7 +30,8 @@ void decimalToBinary(int num) {
    
    // Printing array in reverse order.
    for (int j = i-1; j >= 0; j--)
-      printf("%d\n", binaryNum[j]);
+      printf("%d", binaryNum[j]);
+  printf(" ");
 }
 
 int main(int argc, char *argv[]) {
@@ -66,7 +67,10 @@ int main(int argc, char *argv[]) {
       exit(EXIT_FAILURE);
     }
     printf("Size = %d, Buffer = %s\n", data_size, buffer);
-    decimalToBinary(buffer[0]);
+
+    for(int i=0; i<data_size; i++) {
+      decimalToBinary(buffer[i]);
+    }
 
     //free(buffer);
     currentCount++;
