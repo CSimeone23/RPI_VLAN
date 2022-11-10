@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
       exit(EXIT_FAILURE);
     }
     printf("Size = %d, Buffer = %s\n", data_size, buffer);
-    free(buffer);
+    //free(buffer);
     currentCount++;
   } // End of while loop
 
