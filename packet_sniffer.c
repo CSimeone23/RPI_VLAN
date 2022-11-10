@@ -12,6 +12,26 @@
 FILE *logfile;
 int raw_socket;
 
+void decimalToBinary(int num) {   
+    if (num == 0) {
+        printf("0");
+        return;
+    }
+   
+   // Stores binary representation of number.
+   int binaryNum[32]; // Assuming 32 bit integer.
+   int i=0;
+   
+   for ( ;num > 0; ){
+      binaryNum[i++] = num % 2;
+      num /= 2;
+   }
+   
+   // Printing array in reverse order.
+   for (int j = i-1; j >= 0; j--)
+      printf("%d", binaryNum[j]);
+}
+
 int main(int argc, char *argv[]) {
   int saddr_size, data_size;
   struct sockaddr saddr;
@@ -45,6 +65,8 @@ int main(int argc, char *argv[]) {
       exit(EXIT_FAILURE);
     }
     printf("Size = %d, Buffer = %s\n", data_size, buffer);
+    decimalToBinary(buffer[0]);
+
     //free(buffer);
     currentCount++;
   } // End of while loop
