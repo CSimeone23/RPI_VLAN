@@ -44,7 +44,8 @@ int main(int argc, char *argv[]) {
       printf("Recvfrom Error, failed to get packets\n");
       exit(EXIT_FAILURE);
     }
-    printf("Buffer = %s", buffer);
+    printf("Size = %d, Buffer = %s\n", data_size, buffer);
+    free(buffer);
     currentCount++;
   } // End of while loop
 
