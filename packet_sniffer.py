@@ -9,18 +9,21 @@ HUBSERVER_PORT = 25565
 BROADCAST_IP = "192.168.2S.255"
 UDP_PORT = 3074
 
-LOCAL_ETHERNET_IP = "192.168.2.1"
-LOCALHOST_PORT = 5000
+WIFI_IP = "192.168.1.204"
+WIFI_PORT = 5000
 
-def hubserver_to_local_listener(local_socket):
+ETHERNET_IP = "192.168.2.1"
+ETHERNET_PORT = 9999
+
+def hubserver_to_wifi_listener(wifi_socket, ethernet_socket):
     # Hubserver -> Local
     # For now this will handle the 'Searching' ping
     # If this is hit then it should be sent to broadcast ip
     while True:
-        data, addr = local_socket.recvfrom(MAX_BUFFER_SIZE)
-        print("[LOCAL:5000] received message: %s" % data)
-        local_socket.sendto(data, (BROADCAST_IP, UDP_PORT))
-        print("Sent data from local -> broadcast")
+        data, addr = wifi_socket.recvfrom(MAX_BUFFER_SIZE)
+        print(f"[{WIFI_IP}:{WIFI_PORT}] received message: {data}")
+        ethernet_socket.sendto(data, (BROADCAST_IP, UDP_PORT))
+        print("Sent data from wifi -> ethernet -> broadcast")
 
 def broadcast_listener(broadcast_socket):
     # Whatever -> broadcast
@@ -37,10 +40,16 @@ if __name__ == "__main__":
     udp_sock_3074 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     udp_sock_3074.bind((BROADCAST_IP, UDP_PORT))
     
-    local_ethernet_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    wifi_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    wifi_sock.bind((WIFI_IP, WIFI_PORT))
+    
+    ethernet_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    ethernet_sock.bind((ETHERNET_IP, ETHERNET_PORT))
+    ethernet_sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    
     print("Creating Threads!")
     t1 = threading.Thread(target=broadcast_listener, args=(udp_sock_3074, ))
-    t2 = threading.Thread(target=hubserver_to_local_listener, args=(local_ethernet_sock, ))
+    t2 = threading.Thread(target=hubserver_to_wifi_listener, args=(wifi_sock, ethernet_sock,))
     t1.start()
     print('Thread 1 Started')
     t2.start()
