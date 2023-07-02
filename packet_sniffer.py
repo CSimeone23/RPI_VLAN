@@ -38,6 +38,12 @@ def broadcast_listener(broadcast_socket, wifi_socket):
             continue
         wifi_socket.sendto(data, (HUBSERVER_IP, HUBSERVER_PORT))
         print("Broadcast socket -> hubserver DONE")
+        
+def sendInitPingToHubServer(wifi_sock):
+    payload = "talk to me shawty"
+    wifi_sock.sendto(payload, (HUBSERVER_IP, HUBSERVER_PORT))
+    print('Sent introductory ping to hubserver!')
+    
 
 if __name__ == "__main__":
     udp_sock_3074 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -59,3 +65,4 @@ if __name__ == "__main__":
     print('Thread 1 Started!')
     t2.start()
     print('Thread 2 started!')
+    sendInitPingToHubServer(wifi_sock)
