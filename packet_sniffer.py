@@ -40,7 +40,7 @@ def broadcast_listener(broadcast_socket, wifi_socket):
         print("Broadcast socket -> hubserver DONE")
         
 def sendInitPingToHubServer(wifi_sock):
-    payload = "talk to me shawty"
+    payload = bytes("talk to me shawty", 'utf-8')
     wifi_sock.sendto(payload, (HUBSERVER_IP, HUBSERVER_PORT))
     print('Sent introductory ping to hubserver!')
     
